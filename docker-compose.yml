@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      target: build-dev
+    restart: unless-stopped
+    container_name: boilerplate_backend
+    hostname: boilerplate_backend
+    volumes:
+      - .:/app
+    env_file:
+      - .envs/.django
+      - .envs/.postgres
+      - .envs/.redis
+    ports:
+      - "8000:8000"
+      - "5566:5566"
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:8000/health || exit 1
+      interval: 10s
+      retries: 8
+      start_period: 5s
+      timeout: 5s
+
+  database:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    container_name: boilerplate_database
+    hostname: boilerplate_database
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .envs/.postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 3s
+      retries: 10
+      start_period: 5s
+      timeout: 3s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    container_name: boilerplate_redis
+    hostname: boilerplate_redis
+    volumes:
+      - ./redis_data:/bitnami/redis/data
+    env_file:
+      - .envs/.redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 3s
+      retries: 10
+      start_period: 5s
+      timeout: 3s

@@ -1,0 +1,262 @@
+Project FitShow {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # FitShow Database
+    **This is FitShow database documentation**
+  '''
+}
+Enum media_type {
+  avatar
+  equipment
+  body_part
+  user_body
+  exercise
+  licence
+}
+Enum unit{
+  metric
+  imperial
+}
+Enum gender{
+  male
+  female
+}
+
+Enum user_type{
+  coach
+  athlete
+  admin
+}
+
+Enum body_angle{
+  front
+  back
+  left
+  right
+}
+
+Enum body_part{
+  arm
+  chest
+  leg
+  abs
+  back
+  arm_pit
+  triceps
+  forearm
+  wrist
+  side
+}
+
+Enum admin_setting_key{
+  fee
+  referral_percent
+}
+
+Enum transaction_type {
+  platform_fee
+  user_payment
+  coach_checkout
+}
+
+Enum category_type{
+  exercise
+  sport
+  equipment
+}
+
+Table user {
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  phone_number varchar [not null,unique]
+  password varchar [not null]
+  name varchar [not null]
+  type user_type [not null]
+  device_token varchar [not null]
+  referral_code varchar [not null]
+  referral_percent float [not null,default:0,note: "only admin can change this"]
+  indexes {
+    (phone_number,deleted_at) [unique,note:'where deleted_at is null']
+  }
+}
+
+Table coach_detail{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  coach_id uuid [ref: < user.id,not null]
+  gym_address varchar
+  coach_licence uuid [ref: < media.id]
+}
+
+Table referral{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  user_id uuid [ref: - user.id ,not null,unique]
+  referral_code varchar [not null]
+}
+
+Table user_detail {
+  id uuid [primary key]
+  created_at timestamp [not null]
+  gender gender [not null]
+  user_id uuid [ref: - user.id ,not null]
+  bank_account_number varchar [unique]
+  avatar_id uuid [ref: < media.id]
+  email varchar
+}
+
+Table athlete_profile{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  deleted_at timestamp
+  athlete_id uuid [ref: - user.id ,not null]
+  height float [not null]
+  weight float [not null]
+  unit unit [not null ,default:'metric']
+  rest_time int [not null, default:60,note:'seconds']
+}
+
+Table user_body_media{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  user_id uuid [ref: < user.id ,not null]
+  body_angle body_angle
+  media_id uuid [ref: < media.id,not null]
+
+  indexes {
+    (user_id,body_angle) [unique]
+  }
+}
+
+Table media {
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  file varchar [not null]
+  type media_type [not null]
+  alt varchar
+  mime_type varchar [not null]
+}
+
+Table equipment {
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  media_id uuid [ref: < media.id, not null]
+  name varchar [not null]
+  slug varchar [not null , unique]
+  category_id uuid [not null,ref: < category.id]
+  description text
+}
+
+Table body_part {
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  media_id uuid [ref: < media.id, not null]
+  name body_part [not null,unique]
+  description text
+}
+
+Table category {
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  title varchar [not null]
+  slug varchar [not null , unique]
+  parent_id uuid [ref: < category.id]
+  type category_type [not null]
+}
+
+Table exercise{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  title varchar [not null]
+  slug varchar [not null , unique]
+  description text
+  equipment_id uuid [ref: < equipment.id, not null]
+  body_part_id uuid [ref:< body_part.id,not null]
+  media_id uuid [ref: < media.id,not null]
+  calorie_burn int [not null]
+  duration int [not null]
+  category_id uuid [not null,ref: < category.id]
+}
+
+
+Table workout_plan{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  is_for_sale bool [not null , default:true]
+  coach_id uuid [ref: < user.id,not null]
+  period uuid [not null,note:'every plan need to have a period time for example 1 month in this column it will convert to days (26 days)']
+  price float [not null,default:0]
+  category_id uuid [not null,ref: < category.id]
+}
+
+Table workout_plan_exercise{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  exercise_id uuid [ref: < exercise.id,not null]
+  workout_plan_id uuid [ref: < workout_plan.id,not null]
+  day_plan int [not null,note:'1-6'] // 1
+  sets int [not null]
+  repeats int [not null]
+  indexes {
+    (exercise_id,workout_plan_id,day_plan,sets,repeats) [unique]
+  }
+}
+
+Table user_workout_plan{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  workout_plan_id uuid [ref: < workout_plan.id]
+  athlete_id uuid [ref: < user.id]
+}
+
+Table user_workout_plan_changes{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  workout_plan_exercise_id uuid [ref: < workout_plan_exercise.id,not null]
+  changed_workout_plan_exercise_id uuid [ref: < workout_plan_exercise.id,not null]
+  athlete_id uuid [ref: < user.id]
+  indexes {
+    (athlete_id,changed_workout_plan_exercise_id,workout_plan_exercise_id) [unique]
+  }
+}
+
+Table user_workout_plan_log{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  workout_plan_exercise_id uuid [ref: < workout_plan_exercise.id,not null]
+  exercise_detail jsonb [not null,note:'[{set:1,repeats:10,rest:0,duration:120},{set:2,repeats:8,rest:30,duration:120}]']
+  athlete_id uuid [ref: < user.id]
+}
+
+Table transaction{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  type transaction_type [not null]
+  debit float
+  credit float
+  workout_plan_id uuid [ref: < workout_plan.id,not null]
+  user_id uuid [ref: < user.id,not null]
+  from varchar [not null]
+  to varchar [not null]
+}
+
+Table admin_setting{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  key admin_setting_key [not null,unique]
+  value varchar [not null]
+}
+
