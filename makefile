@@ -1,5 +1,8 @@
 CHANGED_FILES = git diff --name-only --diff-filter=d | grep -E "\.py$" | tr "\n" " "
+
 PROJECT_NAME = "fit_show"
+DBDOCS_FILENAME = database.dbml
+
 ARG1 := $(word 2, $(MAKECMDGOALS) )
 ARG2 := $(word 3, $(MAKECMDGOALS) )
 ARG3 := $(word 4, $(MAKECMDGOALS) )
@@ -39,7 +42,7 @@ lint-changed-files:
 
 install-dbdocs:
 	npm install -g dbdocs
+	dbdocs login
 
 initial-dbdocs:
-	dbdocs login
-	dbdocs build database.dbml --project= $(PROJECTNAME)
+	dbdocs build $(DBDOCS_FILENAME) --project=$(PROJECTNAME)
