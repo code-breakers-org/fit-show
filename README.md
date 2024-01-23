@@ -5,20 +5,24 @@
 - [Getting Started](#getting-started)
 - [Notes](#notes)
     - [Database host & name](#database-host--name)
+- [dbdocs](#dbdocs)
+
 
 ## Getting Started
+  1. If you wish to use a Makefile, please consider installing make by referring to the [Make documentation](https://www.gnu.org/software/make/).
+  The Makefile is provided to include general commands that can be used consistently, enhancing development speed.
 
-1. Before anything, please run below command to add pre-commit hook, for code quality assurance:
-    ```bash
-    # If `make` is installed
-    $ make githook
+  2. Please run below command to add pre-commit hook, for code quality assurance:
+      ```bash
+      # If `make` is installed
+      $ make githook
 
-    # or
+      # or
 
-    # If `make` is an unrecognized command
-    $ git config --local core.hooksPath ./.githooks/
-    ```
-   Make sure you will have your pipeline on GitLab, referencing `.gitlab-ci.yml` file.<br><br>
+      # If `make` is an unrecognized command
+      $ git config --local core.hooksPath ./.githooks/
+      ```
+     Make sure you will have your pipeline on GitLab, referencing `.gitlab-ci.yml` file.<br><br>
 
 
 1. Build the dockerfile (Note: If you don't have docker and docker compose -f docker-compose.local.yml already
@@ -39,3 +43,16 @@ If you are going to change the database container name from starter_database to 
 Consider changing the .postgres env file accordingly.
 You should set the host name
 to project_x_database.
+
+
+# dbdocs
+To use dbdocs in this project, you need to install Node.js based on your operating system.
+For more details, [Visit Node.js Downloads](https://nodejs.org/en/download) .
+
+After installing Node.js, run the following two commands to initialize dbdocs:
+
+```bash
+  $ make install-dbdocs
+  $ make initial-dbdocs
+```
+
