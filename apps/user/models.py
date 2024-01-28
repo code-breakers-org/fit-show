@@ -27,7 +27,6 @@ class UserManager(BaseUserManager):
         if not user.is_superuser:
             user.referral_percent = 10
 
-        print("here")
         user.save()
         return user
 
@@ -48,9 +47,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, CustomBaseModel, SoftDeleteMixin, PermissionsMixin):
     phone_number = PhoneNumberField(max_length=13)
-    type = models.CharField(
-        max_length=16, choices=UserType.choices, blank=False, null=False
-    )
+    type = models.CharField(max_length=16, choices=UserType.choices)
     device_token = models.UUIDField(default=uuid.uuid4)
     referral_code = models.UUIDField(
         default=uuid.uuid4,

@@ -9,13 +9,6 @@ class CustomBaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # def save(self, *args, **kwargs):
-    #     try:
-    #         self.full_clean()
-    #         super().save(*args, **kwargs)
-    #     except ValidationError as e:
-    #         raise ValidationError(", ".join(e.message_dict[NON_FIELD_ERRORS]))
-
     class Meta:
         abstract = True
 

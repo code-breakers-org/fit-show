@@ -122,7 +122,7 @@ RUN sed -i 's/\r$//g' /app/scripts/*
 RUN chmod -R +x /app/scripts/*
 
 # For security and image performance, directories will be hardcoded
-COPY .env /app
+COPY .env /app/
 COPY apps /app/apps
 COPY config /app/config
 COPY static /app/static
