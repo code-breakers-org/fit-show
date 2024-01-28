@@ -1,6 +1,6 @@
+include .env
 CHANGED_FILES = git diff --name-only --diff-filter=d | grep -E "\.py$" | tr "\n" " "
 
-PROJECT_NAME = "fit_show"
 DBDOCS_FILENAME = database.dbml
 
 ARG1 := $(word 2, $(MAKECMDGOALS) )
@@ -14,10 +14,10 @@ update:
 	@ $(PIP_BIN) install -r requirements/local.txt
 
 run-dev:
-	python manage.py runserver 0.0.0.0:8000
+	python manage.py runserver 0.0.0.0:$(DJANGO_PORT)
 
 run:
-	python manage.py runserver 0.0.0.0:8000
+	python manage.py runserver 0.0.0.0:$(DJANGO_PORT)
 
 pip:
 	pip install -r ./requirements/production.txt
@@ -45,4 +45,5 @@ install-dbdocs:
 	dbdocs login
 
 initial-dbdocs:
-	dbdocs build $(DBDOCS_FILENAME) --project=$(PROJECTNAME)
+	dbdocs build $(DBDOCS_FILENAME)
+
