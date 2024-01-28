@@ -189,4 +189,7 @@ firebase_key.json
 
 # ignoring postgres_data
 postgres_data/
+redis_data/
 
+.pgadmin
+.pgadmin/*

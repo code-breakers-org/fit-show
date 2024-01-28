@@ -70,21 +70,27 @@ Table user {
   created_at timestamp [not null]
   updated_at timestamp [not null]
   deleted_at timestamp
-  phone_number varchar [not null,unique]
-  password varchar [not null]
-  name varchar [not null]
+  last_login timestamp
+  is_superuser bool [not null]
+  is_staff bool [not null]
+  is_active bool [not null]
+  phone_number varchar(13) [not null]
+  password varchar(128) [not null]
+  name varchar(250) [not null]
   type user_type [not null]
   device_token varchar [not null]
   referral_code varchar [not null]
   referral_percent float [not null,default:0,note: "only admin can change this"]
   indexes {
-    (phone_number,deleted_at) [unique,note:'where deleted_at is null']
+    (phone_number) [unique ,type:btree, name:'phone_number_if_not_deleted_uniqueness', note:'where deleted_at is null']
+    phone_number [name: 'phone_number_idx', type:btree]
   }
 }
 
 Table coach_detail{
   id uuid [primary key]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
   coach_id uuid [ref: < user.id,not null]
   gym_address varchar
   coach_licence uuid [ref: < media.id]
@@ -93,6 +99,7 @@ Table coach_detail{
 Table referral{
   id uuid [primary key]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
   user_id uuid [ref: - user.id ,not null,unique]
   referral_code varchar [not null]
 }
@@ -100,6 +107,7 @@ Table referral{
 Table user_detail {
   id uuid [primary key]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
   gender gender [not null]
   user_id uuid [ref: - user.id ,not null]
   bank_account_number varchar [unique]
@@ -236,6 +244,7 @@ Table user_workout_plan_changes{
 Table user_workout_plan_log{
   id uuid [primary key]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
   workout_plan_exercise_id uuid [ref: < workout_plan_exercise.id,not null]
   exercise_detail jsonb [not null,note:'[{set:1,repeats:10,rest:0,duration:120},{set:2,repeats:8,rest:30,duration:120}]']
   athlete_id uuid [ref: < user.id]
@@ -244,6 +253,7 @@ Table user_workout_plan_log{
 Table transaction{
   id uuid [primary key]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
   type transaction_type [not null]
   debit float
   credit float
@@ -256,6 +266,7 @@ Table transaction{
 Table admin_setting{
   id uuid [primary key]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
   key admin_setting_key [not null,unique]
   value varchar [not null]
 }
