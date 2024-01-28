@@ -32,9 +32,9 @@
 
 > Note that you should pass following environment variables in order to be able to build your docker images:
 
-- `APP_NAME` to name docker images and hosts. example: `${APP_NAME}_postgres_${ENV}`
-- `ENV`  to name docker images and hosts. example: `${APP_NAME}_postgres_${ENV}`
-- `PORT` in order to run backend server on the specific port. example: `8000`
+- `APP_NAME` to name docker images and hosts. example: `${APP_NAME}_postgres_${DJANGO_ENV}`
+- `DJANGO_ENV`  to name docker images and hosts. example: `${APP_NAME}_postgres_${DJANGO_ENV}`
+- `DJANGO_PORT` in order to run backend server on the specific port. example: `8000`
 - `POSTGRES_PASSWORD` need it to create config based on given password
 - `POSTGRES_USER` need it to create config based on given username
 - `POSTGRES_DB` need it to create config based on given database name and create it in database
@@ -66,7 +66,7 @@
 > To stop docker compose with pgadmin use this command `docker compose --profile pgadmin down`
 
 > To connect the DB through pgadmin (run with docker), you should set host name based on your db docker
-> hostname `${APP_NAME}_postgres_${ENV}`
+> hostname `${APP_NAME}_postgres_${DJANGO_ENV}`
 
 # dbdocs
 

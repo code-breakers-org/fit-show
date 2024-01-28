@@ -1,3 +1,3 @@
 #!/bin/sh
 
-curl --fail http://localhost:${PORT}/health || exit 1
+curl --fail http://localhost:${DJANGO_PORT}/health || exit 1
