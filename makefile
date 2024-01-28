@@ -1,3 +1,7 @@
+
+ifneq ("$(wildcard .env)","")
+    include .env
+endif
 CHANGED_FILES = git diff --name-only --diff-filter=d | grep -E "\.py$" | tr "\n" " "
 
 DBDOCS_FILENAME = database.dbml
