@@ -16,11 +16,9 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-LOCAL_APPS = [
-    "core",
-]
+LOCAL_APPS = ["core", "user"]
 
 # CHECK IF INSTALLED APPS INCLUDE THE PACKAGE FIRST
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = ["phonenumber_field"]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
