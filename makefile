@@ -2,7 +2,8 @@
 ifneq ("$(wildcard .env)","")
     include .env
 endif
-CHANGED_FILES = git diff --name-only --diff-filter=d | grep -E "\.py$" | tr "\n" " "
+CHANGED_FILES := git diff --name-only --diff-filter=d | grep -E "\.py$$" | tr "\n" " "
+FILES := $(shell $(CHANGED_FILES))
 
 DBDOCS_FILENAME = database.dbml
 
@@ -41,8 +42,12 @@ lint:
 	pylint --recursive=y .
 
 lint-changed-files:
-	FILES=$("$CHANGED_FILES") && [[ ! -z "$(FILES)" ]] && pylint --recursive=y "$(FILES)" || echo ""
-
+	@echo "Linting Python files:"
+	@if [ -n "$(FILES)" ]; then \
+		pylint --recursive=y $(FILES); \
+	else \
+		echo "No Python files to lint."; \
+	fi
 install-dbdocs:
 	npm install -g dbdocs
 	dbdocs login
