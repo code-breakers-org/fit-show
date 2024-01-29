@@ -57,7 +57,7 @@ RUN \
     --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get install -yqq --no-install-recommends \
-    supervisor wget nano curl python3-psycopg2
+    supervisor wget nano curl python3-psycopg2 make wait-for-it
 
 # Supervisor config
 RUN mkdir -p /var/log/supervisor
@@ -76,12 +76,14 @@ RUN sed -i 's/\r$//g' /app/scripts/*
 RUN chmod -R +x /app/scripts/*
 
 # For security and image performance, directories will be hardcoded
-COPY .env /app/
+
 COPY apps /app/apps
 COPY config /app/config
 COPY static /app/static
 COPY manage.py /app/manage.py
+COPY makefile /app/makefile
 
+ENTRYPOINT /app/scripts/entrypoint.sh
 
 #
 #
@@ -103,7 +105,7 @@ RUN \
     --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get install -yqq --no-install-recommends \
-    supervisor wget nano curl python3-psycopg2
+    supervisor wget nano curl python3-psycopg2 make
 
 # Supervisor config
 RUN mkdir -p /var/log/supervisor
@@ -122,8 +124,10 @@ RUN sed -i 's/\r$//g' /app/scripts/*
 RUN chmod -R +x /app/scripts/*
 
 # For security and image performance, directories will be hardcoded
-COPY .env /app/
 COPY apps /app/apps
 COPY config /app/config
 COPY static /app/static
 COPY manage.py /app/manage.py
+COPY makefile /app/makefile
+
+ENTRYPOINT /app/scripts/entrypoint.sh

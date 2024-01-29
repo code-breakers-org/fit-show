@@ -1,33 +1,16 @@
 #!/bin/bash
 
-postgres_ready() {
-python << END
-import sys
+POSTGRES="${POSTGRES_HOST}:${POSTGRES_PORT}"
+echo "Wait for POSTGRES=${POSTGRES}"
 
-import psycopg2
+wait-for-it ${POSTGRES}
 
-try:
-    psycopg2.connect(
-        dbname="${POSTGRES_DB}",
-        user="${POSTGRES_USER}",
-        password="${POSTGRES_PASSWORD}",
-        host="${POSTGRES_HOST}",
-        port="${POSTGRES_PORT}",
-    )
-except psycopg2.OperationalError as e:
-    print(e)
-    sys.exit(-1)
-sys.exit(0)
+if [ "$DJANGO_ENV" == "dev" ]
+then
+  echo "Running in ${DJANGO_ENV} mode..."
+  make run-dev
+else
+  echo "Running in ${DJANGO_ENV} mode..."
+  make run
+fi
 
-END
-}
-
-until postgres_ready; do
-  >&2 echo 'Waiting for PostgreSQL to become available...'
-  sleep 1
-done
->&2 echo 'PostgreSQL is available'
-
-mkdir -p /var/log/supervisor
-
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf

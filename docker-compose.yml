@@ -11,9 +11,11 @@ services:
     hostname: ${APP_NAME}_backend_${DJANGO_ENV}
     volumes:
       - .:/app
+    env_file:
+      - ./.env
     ports:
       - "${DJANGO_PORT}:${DJANGO_PORT}"
-    command: python manage.py runserver 0.0.0.0:${DJANGO_PORT}
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,6 +47,7 @@ services:
       retries: 10
       start_period: 5s
       timeout: 3s
+
   pgadmin:
     profiles: [ 'pgadmin' ]
     image: dpage/pgadmin4
