@@ -14,9 +14,6 @@ ARG3 := $(word 4, $(MAKECMDGOALS) )
 githook:
 	@ git config --local core.hooksPath .githooks/
 
-update:
-	@ $(PIP_BIN) install -r requirements/local.txt
-
 run-dev:
 	python manage.py runserver 0.0.0.0:$(DJANGO_PORT)
 
@@ -28,6 +25,9 @@ pip:
 
 pip-dev:
 	pip install -r ./requirements/local.txt
+
+pip-update-dev:
+	pip install -U -r requirements/local.txt
 
 test:
 	python manage.py test
