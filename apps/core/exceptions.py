@@ -18,7 +18,7 @@ def custom_exception_handler(exc: Exception, context: dict):
 
     if isinstance(exc, CustomAPIException):
         return ErrorResponse(
-            message=exc.error_message, data=exc.error_data, status=exc.status_code
+            message=exc.error_message, data=exc.error_data, status_code=exc.status_code
         )
 
     exc_id: str = str(uuid.uuid4())
@@ -30,7 +30,7 @@ def custom_exception_handler(exc: Exception, context: dict):
             exc_info=exc,
         )
         return ErrorResponse(
-            message=f"Unexpected Error with error id of {exc_id}", status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message=f"Unexpected Error with error id of {exc_id}", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     return response
 
