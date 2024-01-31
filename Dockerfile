@@ -83,7 +83,7 @@ COPY staticfiles /app/staticfiles
 COPY manage.py /app/manage.py
 COPY makefile /app/makefile
 
-ENTRYPOINT /app/scripts/entrypoint.sh
+ENTRYPOINT ["sh", "/app/scripts/entrypoint.sh"]
 
 #
 #
@@ -130,4 +130,4 @@ COPY staticfiles /app/staticfiles
 COPY manage.py /app/manage.py
 COPY makefile /app/makefile
 
-ENTRYPOINT /app/scripts/entrypoint.sh
+ENTRYPOINT ["sh", "/app/scripts/entrypoint.sh"]
