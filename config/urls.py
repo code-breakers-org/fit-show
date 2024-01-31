@@ -6,7 +6,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
-urlpatterns = [
+admin_urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
@@ -28,4 +28,4 @@ v1_urlpatterns = [
     path("api/v1/auth/", include("apps.auth.api.v1.urls")),
 ]
 
-urlpatterns += api_docs_urlpatterns + v1_urlpatterns
+urlpatterns = [] + api_docs_urlpatterns + v1_urlpatterns + admin_urlpatterns
