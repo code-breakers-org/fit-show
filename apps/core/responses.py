@@ -5,29 +5,45 @@ from rest_framework.response import Response
 
 
 class CustomResponse(Response):
-    def __init__(self, message=None, data=None, status=200, *args, **kwargs):
+    default_status_code = status.HTTP_200_OK
+    default_response_message = None
 
-        # Filtering kwargs
-        drf_response_kwargs = (
-            "data",
-            "status",
-            "template_name",
-            "headers",
-            "exception",
-            "content_type",
+    def __init__(
+        self,
+        *,
+        message=None,
+        data=None,
+        status_code=None,
+        template_name=None,
+        headers=None,
+        exception=False,
+        content_type=None
+    ):
+
+        if message is None:
+            self.message = self.default_response_message
+        else:
+            self.message = message
+
+        if status_code is None:
+            self.status_code = self.default_status_code
+        else:
+            self.status_code = status_code
+
+        super().__init__(
+            status=status_code,
+            data=data,
+            template_name=template_name,
+            headers=headers,
+            exception=exception,
+            content_type=content_type,
         )
-        drf_response_kwargs = {
-            key: value for key, value in kwargs.items() if key in drf_response_kwargs
-        }
-        super().__init__(status=status, data=data, **drf_response_kwargs)
-        self.message = message
-        self.status = status
 
         # JSON OUTPUT
         self.data = OrderedDict()
         self.data.update(
             {
-                "status": self.status,
+                "status": self.status_code,
                 "message": message,
                 "result": data,
             }
@@ -40,35 +56,36 @@ class CustomResponse(Response):
         return self.data
 
 
-class CreateResponse(CustomResponse): ...
+class CreateResponse(CustomResponse):
+    default_status_code = status.HTTP_201_CREATED
+    default_response_message = "Record created successfully"
 
 
-class ListResponse(CustomResponse): ...
+class ListResponse(CustomResponse):
+    default_status_code = status.HTTP_200_OK
+    default_response_message = "Record listed"
 
 
-class RetrieveResponse(CustomResponse): ...
+class RetrieveResponse(CustomResponse):
+    default_status_code = status.HTTP_200_OK
+    default_response_message = "Record retrieved"
 
 
-class UpdateResponse(CustomResponse): ...
+class UpdateResponse(CustomResponse):
+    default_status_code = status.HTTP_200_OK
+    default_response_message = "Record updated successfully"
 
 
-class DeleteResponse(CustomResponse): ...
+class DeleteResponse(CustomResponse):
+    default_status_code = status.HTTP_204_NO_CONTENT
+    default_response_message = "Record deleted successfully"
 
 
 class SuccessResponse(CustomResponse):
-    def __init__(
-        self, message=None, data=None, status=status.HTTP_200_OK, *args, **kwargs
-    ):
-        super().__init__(message, data, status, *args, **kwargs)
+    default_status_code = status.HTTP_200_OK
+    default_response_message = "Success response"
 
 
 class ErrorResponse(CustomResponse):
-    def __init__(
-        self,
-        message=None,
-        data=None,
-        status=status.HTTP_400_BAD_REQUEST,
-        *args,
-        **kwargs
-    ):
-        super().__init__(message, data, status, *args, **kwargs)
+    default_status_code = status.HTTP_400_BAD_REQUEST
+    default_response_message = "Error response"

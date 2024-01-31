@@ -1,4 +1,5 @@
-import traceback
+import logging
+import uuid
 
 from django.conf import settings
 from rest_framework import status
@@ -7,27 +8,30 @@ from rest_framework.views import exception_handler
 
 from apps.core.responses import ErrorResponse
 
+logger = logging.getLogger(settings.LOGGER_NAME)
+
 
 def custom_exception_handler(exc: Exception, context: dict):
     """Custom API exception handler"""
 
     if isinstance(exc, CustomAPIException):
         return ErrorResponse(
-            message=exc.error_message, data=exc.error_data, status=exc.status_code
+            message=exc.error_message, data=exc.error_data, status_code=exc.status_code
         )
 
+    exc_id: str = str(uuid.uuid4())
     response = exception_handler(exc, context)
-    if settings.DEBUG:
-        if isinstance(response.data, list):
-            response.data.append({"exception_detail": traceback.format_exc()})
-        elif isinstance(response.data, dict):
-            response.data.update({"exception_detail": traceback.format_exc()})
-        else:
-            response.data = {"exception_detail": traceback.format_exc()}
 
-    return ErrorResponse(
-        message="Unexpected Error", status=response.status_code, data=response.data
-    )
+    if response is None:
+        logger.exception(
+            f"ID: {exc_id} | message -> Unexpected Exception | class Name -> {exc.__class__.__name__}",
+            exc_info=exc,
+        )
+        return ErrorResponse(
+            message=f"Unexpected Error with error id of {exc_id}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return response
 
 
 class CustomAPIException(APIException):
@@ -36,7 +40,7 @@ class CustomAPIException(APIException):
         error_message="Error",
         error_data=None,
         status_code=status.HTTP_400_BAD_REQUEST,
-        **kwargs
+        **kwargs,
     ):
         self.error_message = error_message
         self.error_data = error_data
