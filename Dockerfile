@@ -79,7 +79,7 @@ RUN chmod -R +x /app/scripts/*
 
 COPY apps /app/apps
 COPY config /app/config
-COPY static /app/static
+COPY staticfiles /app/staticfiles
 COPY manage.py /app/manage.py
 COPY makefile /app/makefile
 
@@ -126,7 +126,7 @@ RUN chmod -R +x /app/scripts/*
 # For security and image performance, directories will be hardcoded
 COPY apps /app/apps
 COPY config /app/config
-COPY static /app/static
+COPY staticfiles /app/staticfiles
 COPY manage.py /app/manage.py
 COPY makefile /app/makefile
 
