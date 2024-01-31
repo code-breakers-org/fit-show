@@ -68,4 +68,3 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "user.User"
-AUTHENTICATION_BACKENDS = ["apps.auth.authentications.CustomModelBackend"]
