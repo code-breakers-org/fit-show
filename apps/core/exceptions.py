@@ -1,4 +1,6 @@
+import logging
 import traceback
+import uuid
 
 from django.conf import settings
 from rest_framework import status
@@ -6,6 +8,9 @@ from rest_framework.exceptions import APIException
 from rest_framework.views import exception_handler
 
 from apps.core.responses import ErrorResponse
+from django.conf import settings
+
+logger = logging.getLogger(settings.LOGGER_NAME)
 
 
 def custom_exception_handler(exc: Exception, context: dict):
@@ -16,18 +21,18 @@ def custom_exception_handler(exc: Exception, context: dict):
             message=exc.error_message, data=exc.error_data, status=exc.status_code
         )
 
+    exc_id: str = str(uuid.uuid4())
     response = exception_handler(exc, context)
-    if settings.DEBUG:
-        if isinstance(response.data, list):
-            response.data.append({"exception_detail": traceback.format_exc()})
-        elif isinstance(response.data, dict):
-            response.data.update({"exception_detail": traceback.format_exc()})
-        else:
-            response.data = {"exception_detail": traceback.format_exc()}
 
-    return ErrorResponse(
-        message="Unexpected Error", status=response.status_code, data=response.data
-    )
+    if response is None:
+        logger.exception(
+            f"ID: {exc_id} | message -> Unexpected Exception | class Name -> {exc.__class__.__name__}",
+            exc_info=exc,
+        )
+        return ErrorResponse(
+            message=f"Unexpected Error with error id of {exc_id}", status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return response
 
 
 class CustomAPIException(APIException):
