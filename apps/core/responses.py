@@ -8,20 +8,36 @@ class CustomResponse(Response):
     default_status_code = status.HTTP_200_OK
     default_response_message = None
 
-    def __init__(self, *, message=None, data=None, status_code=None,
-                 template_name=None, headers=None,
-                 exception=False, content_type=None):
+    def __init__(
+        self,
+        *,
+        message=None,
+        data=None,
+        status_code=None,
+        template_name=None,
+        headers=None,
+        exception=False,
+        content_type=None
+    ):
 
         if message is None:
             self.message = self.default_response_message
+        else:
+            self.message = message
 
         if status_code is None:
             self.status_code = self.default_status_code
+        else:
+            self.status_code = status_code
 
-        super().__init__(status=status_code, data=data, template_name=template_name, headers=headers,
-                         exception=exception, content_type=content_type)
-        self.message = message
-        self.status_code = status_code
+        super().__init__(
+            status=status_code,
+            data=data,
+            template_name=template_name,
+            headers=headers,
+            exception=exception,
+            content_type=content_type,
+        )
 
         # JSON OUTPUT
         self.data = OrderedDict()
