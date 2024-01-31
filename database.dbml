@@ -69,12 +69,11 @@ Table user {
   id uuid [primary key]
   created_at timestamp [not null]
   updated_at timestamp [not null]
-  deleted_at timestamp
   last_login timestamp
   is_superuser bool [not null]
   is_staff bool [not null]
   is_active bool [not null]
-  phone_number varchar(13) [not null]
+  phone_number varchar(13) [not null, unique]
   password varchar(128) [not null]
   name varchar(250) [not null]
   type user_type [not null]
@@ -82,7 +81,6 @@ Table user {
   referral_code varchar [not null]
   referral_percent float [not null,default:0,note: "only admin can change this"]
   indexes {
-    (phone_number) [unique ,type:btree, name:'phone_number_if_not_deleted_uniqueness', note:'where deleted_at is null']
     phone_number [name: 'phone_number_idx', type:btree]
   }
 }

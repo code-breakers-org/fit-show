@@ -6,12 +6,11 @@ from django.contrib.auth.models import (
     BaseUserManager,
 )
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
 from apps.core.enums import UserType
-from apps.core.mixins.models import CustomBaseModel, SoftDeleteMixin
+from apps.core.mixins.models import CustomBaseModel
 
 
 class UserManager(BaseUserManager):
@@ -45,8 +44,8 @@ class UserManager(BaseUserManager):
         return self.create_user(phone_number, password, **extra_fields)
 
 
-class User(AbstractBaseUser, CustomBaseModel, SoftDeleteMixin, PermissionsMixin):
-    phone_number = PhoneNumberField(max_length=13)
+class User(AbstractBaseUser, CustomBaseModel, PermissionsMixin):
+    phone_number = PhoneNumberField(max_length=13, unique=True)
     type = models.CharField(max_length=16, choices=UserType.choices)
     device_token = models.UUIDField(default=uuid.uuid4)
     referral_code = models.UUIDField(
@@ -82,13 +81,6 @@ class User(AbstractBaseUser, CustomBaseModel, SoftDeleteMixin, PermissionsMixin)
         indexes = [
             models.Index(fields=["phone_number"], name="phone_number_idx"),
         ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["phone_number"],
-                condition=Q(deleted_at=None),
-                name="phone_number_if_not_deleted_uniqueness",
-                violation_error_message="Given phone number already exist",
-            ),
-        ]
+
         db_table = "user"
         app_label = "user"

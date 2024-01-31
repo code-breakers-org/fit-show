@@ -18,7 +18,6 @@ class UserAdminConfigMixin(UserAdmin, CustomAdminModelMixin):
         "type",
         "is_staff",
         "is_active",
-        "deleted_at",
         "created_at",
     ]
     search_fields = (
@@ -29,7 +28,7 @@ class UserAdminConfigMixin(UserAdmin, CustomAdminModelMixin):
 
     fieldsets = (
         (None, {"fields": ("phone_number", "password")}),
-        (_("General info"), {"fields": ("name", "type")}),
+        (_("General info"), {"fields": ("name", "type", "last_login")}),
         (
             _("Permissions"),
             {
@@ -42,7 +41,6 @@ class UserAdminConfigMixin(UserAdmin, CustomAdminModelMixin):
                 ),
             },
         ),
-        (_("Important dates"), {"fields": ("last_login", "deleted_at")}),
     )
     add_fieldsets = (
         (
@@ -53,4 +51,4 @@ class UserAdminConfigMixin(UserAdmin, CustomAdminModelMixin):
             },
         ),
     )
-    list_filter = ("is_staff", "is_superuser", "is_active", "deleted_at", "groups")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")

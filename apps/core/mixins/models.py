@@ -1,7 +1,6 @@
 import uuid
 
 from django.db import models
-from django.utils import timezone
 
 
 class CustomBaseModel(models.Model):
@@ -11,14 +10,3 @@ class CustomBaseModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class SoftDeleteMixin(models.Model):
-    deleted_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
-
-    def delete(self):
-        self.deleted_at = timezone.now()
-        self.save()
