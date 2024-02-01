@@ -1,12 +1,10 @@
-from .handler import BASE_DIR, env
+from config.environment_variables import PUBLIC_STATIC_ROOT, PUBLIC_MEDIA_ROOT
+from config.settings import BASE_DIR
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
 
-STATIC_ROOT = BASE_DIR / "static"
-STATIC_ROOT = env.str(
-    "PUBLIC_STATIC_ROOT", STATIC_ROOT
-)  # This ENV variable will be used in the CI/CD
+STATIC_ROOT = PUBLIC_STATIC_ROOT
 
 STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
 STATICFILES_FINDERS = [
@@ -15,8 +13,5 @@ STATICFILES_FINDERS = [
 ]
 
 # MEDIA
-MEDIA_ROOT = BASE_DIR / "media"
-MEDIA_ROOT = env.str(
-    "PUBLIC_MEDIA_ROOT", MEDIA_ROOT
-)  # This ENV variable will be used in the CI/CD
+MEDIA_ROOT = PUBLIC_MEDIA_ROOT
 MEDIA_URL = "/media/"

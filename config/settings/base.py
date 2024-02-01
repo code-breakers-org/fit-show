@@ -1,12 +1,18 @@
-from .handler import env, DEBUG
+from pathlib import Path
 
-SECRET_KEY = env.str(
-    "SECRET_KEY",
-    default="django-insecure-^hx4vco_&p3urjr5p9y1evw7^p%caba0+3p64q=a$!2l&=z=oz",
+from config.environment_variables import (
+    SECRET_KEY,
+    ALLOWED_HOSTS,
+    CSRF_TRUSTED_ORIGINS,
+    DEBUG,
+    TIME_ZONE,
 )
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+SECRET_KEY = SECRET_KEY
+
+ALLOWED_HOSTS = ALLOWED_HOSTS
+CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -57,7 +63,7 @@ if DEBUG:
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = env.str("TIMEZONE", default="UTC")
+TIME_ZONE = TIME_ZONE
 
 USE_I18N = True
 
