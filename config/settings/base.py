@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from config.environment_variables import (
     SECRET_KEY,
     ALLOWED_HOSTS,
@@ -8,7 +6,6 @@ from config.environment_variables import (
     TIME_ZONE,
 )
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = SECRET_KEY
 
 ALLOWED_HOSTS = ALLOWED_HOSTS

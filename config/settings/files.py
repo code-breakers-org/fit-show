@@ -1,5 +1,5 @@
-from config.environment_variables import PUBLIC_STATIC_ROOT, PUBLIC_MEDIA_ROOT
-from config.settings import BASE_DIR
+from config.environment_variables import PUBLIC_STATIC_ROOT, PUBLIC_MEDIA_ROOT, BASE_DIR
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
