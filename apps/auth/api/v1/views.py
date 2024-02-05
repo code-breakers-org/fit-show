@@ -1,9 +1,14 @@
+from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
-from apps.auth.api.v1.serializers import UserSignUpSerializer
+from apps.auth.api.v1.serializers import (
+    UserSignUpSerializer,
+    SendVerificationSerializer,
+)
 from apps.core.responses import CreateResponse
+from apps.user.models import UserVerification
 
 
 class SignupView(APIView):
@@ -16,3 +21,21 @@ class SignupView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return CreateResponse(message="User created", data=serializer.data)
+
+
+class SendVerificationCodeView(CreateAPIView):
+    serializer_class = SendVerificationSerializer
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+    queryset = UserVerification.objects.all()
+
+    def perform_create(self, serializer: SendVerificationSerializer):
+        user_verification_qs = self.queryset.filter(
+            phone_number=serializer.validated_data.get("phone_number")
+        )
+
+        if user_verification_qs.exists():
+            user_verification_qs.delete()
+
+        user_verification: UserVerification = serializer.save()
+        user_verification.notify_verification_code()
