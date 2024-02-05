@@ -1,4 +1,4 @@
-from config.environment_variables import PUBLIC_STATIC_ROOT, PUBLIC_MEDIA_ROOT, BASE_DIR
+from config.envs import PUBLIC_STATIC_ROOT, PUBLIC_MEDIA_ROOT, BASE_DIR
 
 
 # Static files (CSS, JavaScript, Images)

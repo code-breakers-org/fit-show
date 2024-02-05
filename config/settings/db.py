@@ -1,4 +1,4 @@
-from config.environment_variables import (
+from config.envs import (
     POSTGRES_DB,
     POSTGRES_USER,
     POSTGRES_PASSWORD,

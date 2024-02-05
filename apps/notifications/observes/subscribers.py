@@ -8,7 +8,7 @@ from apps.notifications.observes.notification_abstracts import (
     NotificationSubscriberAbstract,
 )
 from apps.notifications.providers import SmsIrProvider
-from config.environment_variables import DEBUG
+from config.envs import DEBUG
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 

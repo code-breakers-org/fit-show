@@ -1,4 +1,4 @@
-from config.environment_variables import env
+from config.envs import env
 
 
 SMS_API_KEY = env("SMS_API_KEY")

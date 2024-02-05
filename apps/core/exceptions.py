@@ -7,7 +7,7 @@ from rest_framework.exceptions import APIException
 from rest_framework.views import exception_handler
 
 from apps.core.responses import ErrorResponse
-from config.environment_variables import DEBUG
+from config.envs import DEBUG
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 

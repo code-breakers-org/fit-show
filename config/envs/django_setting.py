@@ -1,4 +1,4 @@
-from config.environment_variables.handler import env
+from config.envs.handler import env
 
 SECRET_KEY = env.str(
     "SECRET_KEY",

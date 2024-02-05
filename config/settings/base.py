@@ -1,4 +1,4 @@
-from config.environment_variables import (
+from config.envs import (
     SECRET_KEY,
     ALLOWED_HOSTS,
     CSRF_TRUSTED_ORIGINS,

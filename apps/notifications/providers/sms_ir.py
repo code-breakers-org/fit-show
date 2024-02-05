@@ -1,7 +1,7 @@
 from sms_ir.services import SmsIr
 
 from apps.notifications.providers.sms_provider_abstract import SMSProviderAbstract
-from config.environment_variables import SMS_API_KEY, SMS_LINE_NUMBER, SMS_TEMPLATE
+from config.envs import SMS_API_KEY, SMS_LINE_NUMBER, SMS_TEMPLATE
 
 
 class SmsIrProvider(SMSProviderAbstract):

@@ -1,4 +1,4 @@
-from config.environment_variables.handler import env, BASE_DIR
+from config.envs.handler import env, BASE_DIR
 
 
 STATIC_DIR = BASE_DIR / "static"

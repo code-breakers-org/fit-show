@@ -1,4 +1,4 @@
-from config.environment_variables import env
+from config.envs import env
 
 POSTGRES_DB = env.str("POSTGRES_DB")
 POSTGRES_USER = env.str("POSTGRES_USER")
