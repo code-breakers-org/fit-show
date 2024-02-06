@@ -1,3 +1,4 @@
+import django.contrib.auth.password_validation as validators
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -7,6 +8,13 @@ from apps.user.models import User, UserVerification
 
 
 class UserSignUpSerializer(serializers.ModelSerializer):
+    def validate_password(self, value):
+        try:
+            validators.validate_password(value)
+        except serializers.ValidationError as e:
+            raise DataInvalidException(str(e))
+        return value
+
     def validate(self, attrs: dict):
         phone_number = attrs.get("phone_number")
         user_verification = UserVerification.objects.filter(
