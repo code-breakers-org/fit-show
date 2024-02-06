@@ -6,8 +6,10 @@ from rest_framework.views import APIView
 from apps.auth.api.v1.serializers import (
     UserSignUpSerializer,
     SendVerificationSerializer,
+    VerifyVerificationSerializer,
 )
-from apps.core.responses import CreateResponse
+from apps.core.enums import UserVerificationStatus
+from apps.core.responses import CreateResponse, UpdateResponse
 from apps.user.models import UserVerification
 
 
@@ -20,6 +22,8 @@ class SignupView(APIView):
         serializer: UserSignUpSerializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        phone_number = serializer.validated_data.get("phone_number")
+        UserVerification.objects.filter(phone_number=phone_number).delete()
         return CreateResponse(message="User created", data=serializer.data)
 
 
@@ -30,12 +34,28 @@ class SendVerificationCodeView(CreateAPIView):
     queryset = UserVerification.objects.all()
 
     def perform_create(self, serializer: SendVerificationSerializer):
-        user_verification_qs = self.queryset.filter(
-            phone_number=serializer.validated_data.get("phone_number")
-        )
+        phone_number = serializer.validated_data.get("phone_number")
+        user_verification_qs = self.queryset.filter(phone_number=phone_number)
 
         if user_verification_qs.exists():
             user_verification_qs.delete()
 
         user_verification: UserVerification = serializer.save()
         user_verification.notify_verification_code()
+
+
+class VerifyVerificationCodeView(APIView):
+    serializer_class = VerifyVerificationSerializer
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    def put(self, request: Request):
+        serializer: VerifyVerificationSerializer = self.serializer_class(
+            data=request.data
+        )
+        serializer.is_valid(raise_exception=True)
+        phone_number = serializer.validated_data.get("phone_number")
+        UserVerification.objects.filter(phone_number=phone_number).update(
+            status=UserVerificationStatus.VERIFIED
+        )
+        return UpdateResponse(message="Verification code validated")

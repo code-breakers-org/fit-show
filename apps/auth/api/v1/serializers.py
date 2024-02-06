@@ -1,9 +1,23 @@
+from django.utils import timezone
 from rest_framework import serializers
 
+from apps.core.enums import UserVerificationStatus
+from apps.core.exceptions import DataInvalidException
 from apps.user.models import User, UserVerification
 
 
 class UserSignUpSerializer(serializers.ModelSerializer):
+    def validate(self, attrs: dict):
+        phone_number = attrs.get("phone_number")
+        user_verification = UserVerification.objects.filter(
+            phone_number=phone_number,
+            status__exact=UserVerificationStatus.VERIFIED,
+        )
+        if not user_verification.exists():
+            raise DataInvalidException("You should verify your phone number first.")
+        attrs["is_active"] = True
+        return attrs
+
     def create(self, validated_data: dict):
         phone_number = validated_data.pop("phone_number")
         password = validated_data.pop("password")
@@ -21,4 +35,24 @@ class UserSignUpSerializer(serializers.ModelSerializer):
 class SendVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserVerification
-        fields = ["phone_number"]
+        fields = ["phone_number", "expire_on"]
+        extra_kwargs = {"expire_on": {"read_only": True}}
+
+
+class VerifyVerificationSerializer(serializers.ModelSerializer):
+    def validate(self, attrs: dict):
+        phone_number = attrs.get("phone_number")
+        code = attrs.get("code")
+        user_verification = UserVerification.objects.filter(
+            phone_number=phone_number,
+            code=code,
+            status__exact=UserVerificationStatus.PENDING,
+            expire_on__gt=timezone.now(),
+        )
+        if not user_verification.exists():
+            raise DataInvalidException("Verification code is not valid")
+        return attrs
+
+    class Meta:
+        model = UserVerification
+        fields = ["phone_number", "code"]

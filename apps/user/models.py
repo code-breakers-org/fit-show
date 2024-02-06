@@ -8,7 +8,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.core.enums import UserType
+from apps.core.enums import UserType, UserVerificationStatus
 from apps.core.mixins.models import CustomBaseModel
 from apps.core.utils import add_date_time_to_now, generate_verification_code
 from apps.notifications import NotificationPublisher, PhoneNumberVerificationSubscriber
@@ -65,6 +65,11 @@ class UserVerification(CustomBaseModel):
     expire_on = models.DateTimeField()
     code = models.IntegerField()
     notifier = NotificationPublisher()
+    status = models.CharField(
+        max_length=10,
+        choices=UserVerificationStatus.choices,
+        default=UserVerificationStatus.PENDING,
+    )
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
