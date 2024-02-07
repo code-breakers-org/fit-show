@@ -1,0 +1,3 @@
+A common, standardized practice to solve this empty directory issue on git repository.
+Use this file to have your directory in repository.
+This isn't a feature of Git! Therefore, you could name it anything. There's nothing special about the name .gitkeep.

@@ -29,3 +29,6 @@ v1_urlpatterns = [
 ]
 
 urlpatterns = [] + api_docs_urlpatterns + v1_urlpatterns + admin_urlpatterns
+
+
+handler500 = "apps.core.exceptions.server_error"
