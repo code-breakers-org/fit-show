@@ -41,6 +41,26 @@ class UserSignUpSerializer(serializers.ModelSerializer):
 
 
 class SendVerificationSerializer(serializers.ModelSerializer):
+    def validate(self, attrs: dict):
+        phone_number = attrs.get("phone_number")
+        user_verification = UserVerification.objects.filter(
+            phone_number=phone_number,
+            status__exact=UserVerificationStatus.PENDING,
+            expire_on__gt=timezone.now(),
+        )
+
+        if user_verification.exists():
+            expire_on = user_verification.first().expire_on
+            remaining_time = expire_on - timezone.now()
+            total_seconds = remaining_time.total_seconds()
+            raise DataInvalidException(
+                "You can't send verification",
+                {
+                    "remaining_total_seconds": total_seconds,
+                },
+            )
+        return attrs
+
     class Meta:
         model = UserVerification
         fields = ["phone_number", "expire_on"]

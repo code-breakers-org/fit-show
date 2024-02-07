@@ -7,7 +7,7 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-LOCAL_APPS = ["apps.core", "apps.user", "apps.notifications.providers"]
+LOCAL_APPS = ["apps.core", "apps.user"]
 
 # CHECK IF INSTALLED APPS INCLUDE THE PACKAGE FIRST
 THIRD_PARTY_APPS = [

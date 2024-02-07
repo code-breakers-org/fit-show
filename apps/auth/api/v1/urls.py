@@ -12,13 +12,13 @@ urlpatterns = [
     path("signin/", TokenObtainPairView.as_view(), name="signin"),
     path("refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path(
-        "verificatation/send",
+        "otp/send",
         SendVerificationCodeView.as_view(),
-        name="send_verification_code",
+        name="send_otp",
     ),
     path(
-        "verificatation/verify",
+        "otp/verify",
         VerifyVerificationCodeView.as_view(),
-        name="verify_verification_code",
+        name="verify_otp",
     ),
 ]
