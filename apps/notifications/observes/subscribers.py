@@ -39,7 +39,6 @@ class SmsSubscriber(NotificationSubscriberAbstract):
             return phonenumbers.is_valid_number(number)
         except phonenumbers.phonenumberutil.NumberParseException:
             return False
-        pass
 
 
 class PhoneNumberVerificationSubscriber(SmsSubscriber):
