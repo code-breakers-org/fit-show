@@ -1,2 +1,5 @@
-from context import NotificationContext
-from strategies import SmsStrategy, PhoneNumberVerificationStrategy
+from apps.notifications.strategies.context import NotificationContext
+from apps.notifications.strategies.strategies import (
+    SmsStrategy,
+    PhoneNumberVerificationStrategy,
+)

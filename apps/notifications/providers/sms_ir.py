@@ -1,12 +1,22 @@
+import logging
+
+from django.conf import settings
 from sms_ir.services import SmsIr
 
-from apps.notifications.providers.sms_provider_abstract import SMSProviderAbstract
 from config.envs import SMS_API_KEY, SMS_LINE_NUMBER, SMS_TEMPLATE
+from .sms_provider_abstract import SMSProviderAbstract
 
 
-class SmsIrProvider(SMSProviderAbstract):
+class CustomSmsIr(SmsIr):
+    def config_logger(self):
+        self.log_level = logging.INFO
+        self.logger = logger = logging.getLogger(settings.LOGGER_NAME)
+        self.logger.setLevel(self.log_level)
 
-    instance = SmsIr(
+
+class SmsProvider(SMSProviderAbstract):
+
+    instance = CustomSmsIr(
         SMS_API_KEY,
         SMS_LINE_NUMBER,
     )
