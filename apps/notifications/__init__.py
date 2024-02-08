@@ -1,1 +1,1 @@
-from apps.notifications.observes import *
+from apps.notifications.strategies import *

@@ -11,7 +11,11 @@ from phonenumber_field.modelfields import PhoneNumberField
 from apps.core.enums import UserType, UserVerificationStatus
 from apps.core.mixins.models import CustomBaseModel
 from apps.core.utils import add_date_time_to_now, generate_verification_code
-from apps.notifications import NotificationPublisher, PhoneNumberVerificationSubscriber
+from apps.notifications import (
+    NotificationContext,
+    SmsStrategy,
+    PhoneNumberVerificationStrategy,
+)
 from apps.user.manager import UserManager
 
 
@@ -39,13 +43,13 @@ class User(AbstractBaseUser, CustomBaseModel, PermissionsMixin):
     )
     USERNAME_FIELD = "phone_number"
     objects = UserManager()
-    notifier = NotificationPublisher()
+    notification_context = NotificationContext(SmsStrategy())
 
     def __str__(self):
         return f"{self.phone_number}"
 
     def notify_phone_number(self, message: str):
-        self.notifier.notify(who=self.phone_number, message=message)
+        self.notification_context.send(to=self.phone_number, message=message)
 
     class Meta:
         verbose_name = _("user")
@@ -64,7 +68,7 @@ class UserVerification(CustomBaseModel):
     phone_number = PhoneNumberField(max_length=13)
     expire_on = models.DateTimeField()
     code = models.IntegerField()
-    notifier = NotificationPublisher()
+    notification_context = NotificationContext(PhoneNumberVerificationStrategy())
     status = models.CharField(
         max_length=10,
         choices=UserVerificationStatus.choices,
@@ -83,14 +87,11 @@ class UserVerification(CustomBaseModel):
             update_fields=update_fields,
         )
 
-    def notify_phone_number(self, message: str):
-        self.notifier.notify(who=self.phone_number, message=message)
+    def notify_by_phone_number(self, message: str):
+        self.notification_context.send(to=self.phone_number, message=message)
 
-    def notify_verification_code(self):
-        subscriber = PhoneNumberVerificationSubscriber()
-        self.notifier.subscribe(subscriber)
-        self.notify_phone_number(str(self.code))
-        self.notifier.unsubscribe(subscriber)
+    def send_verification_code(self):
+        self.notify_by_phone_number(str(self.code))
 
     def __str__(self):
         return f"{self.phone_number}"
