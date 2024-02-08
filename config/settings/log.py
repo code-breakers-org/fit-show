@@ -1,7 +1,7 @@
-from config.envs import LOGS_DIR_PATH, DEBUG_LOG_FILENAME, BASE_DIR
+from .env_handler import BASE_DIR, env
 
-LOGS_DIR = BASE_DIR / LOGS_DIR_PATH
-DEBUG_LOG_FILE = LOGS_DIR / DEBUG_LOG_FILENAME
+LOGS_DIR = BASE_DIR / env.str("LOGS_DIR", "logs")
+DEBUG_LOG_FILE = LOGS_DIR / env.str("DEBUG_LOG_FILENAME", "debug.log")
 
 LOGGER_NAME = "FitShowLogger"
 

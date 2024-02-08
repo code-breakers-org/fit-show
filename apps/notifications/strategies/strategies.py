@@ -1,6 +1,6 @@
 import phonenumbers
+from django.conf import settings
 
-from config.envs import DEBUG
 from .strategy_abstract import NotificationStrategy
 from ..decorators import log_sms_info
 from ..tasks import send_otp_sms_notification, send_sms_notification
@@ -14,7 +14,7 @@ class SmsStrategy(NotificationStrategy):
     def execute(self, to: str, message: str):
         if not self.validate_phone_number(number=to):
             return False
-        if not DEBUG:
+        if not settings.DEBUG:
             self.send(to=str(to), message=message)
 
     def validate_phone_number(self, number: str):
