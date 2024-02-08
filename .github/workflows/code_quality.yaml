@@ -18,6 +18,8 @@ env:
   SMS_API_KEY: ${{ secrets.SMS_API_KEY }}
   SMS_TEMPLATE: ${{ secrets.SMS_TEMPLATE }}
   SMS_LINE_NUMBER: ${{ secrets.SMS_LINE_NUMBER }}
+  REDIS_HOST: ${{ secrets.REDIS_HOST }}
+  REDIS_PORT: ${{ secrets.REDIS_PORT }}
 jobs:
   build:
     runs-on: ubuntu-latest
