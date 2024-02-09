@@ -1,4 +1,3 @@
-import mimetypes
 from pathlib import Path
 
 import environ
@@ -12,5 +11,3 @@ DEBUG = env.bool("DEBUG", None)
 if DEBUG is None:
     environ.Env.read_env(BASE_DIR / ".env")
     DEBUG = env.bool("DEBUG", False)
-
-mimetypes.add_type("application/javascript", ".js", True)

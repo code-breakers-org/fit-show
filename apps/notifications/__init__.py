@@ -1,1 +1,5 @@
-from apps.notifications.observes import *
+from apps.notifications.strategies import (
+    SmsStrategy,
+    PhoneNumberVerificationStrategy,
+    NotificationContext,
+)

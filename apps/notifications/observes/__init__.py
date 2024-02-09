@@ -1,2 +1,0 @@
-from apps.notifications.observes.publisher import NotificationPublisher
-from apps.notifications.observes.subscribers import PhoneNumberVerificationSubscriber

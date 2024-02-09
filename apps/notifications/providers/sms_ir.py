@@ -1,35 +1,36 @@
+import logging
+
+from django.conf import settings
 from sms_ir.services import SmsIr
 
-from apps.notifications.providers.sms_provider_abstract import SMSProviderAbstract
-from config.envs import SMS_API_KEY, SMS_LINE_NUMBER, SMS_TEMPLATE
+from .sms_provider_abstract import SMSProviderAbstract
 
 
-class SmsIrProvider(SMSProviderAbstract):
+class CustomSmsIr(SmsIr):
+    def config_logger(self):
+        self.log_level = logging.INFO
+        self.logger = logging.getLogger(settings.LOGGER_NAME)
+        self.logger.setLevel(self.log_level)
 
-    instance = SmsIr(
-        SMS_API_KEY,
-        SMS_LINE_NUMBER,
-    )
 
-    def send(self, to: str, message: str):
-        return self.instance.send_sms(
-            number=to,
-            message=message,
-            linenumber=SMS_LINE_NUMBER,
+class SmsProvider(SMSProviderAbstract):
+    def __init__(self):
+        self.instance = CustomSmsIr(
+            settings.SMS_API_KEY,
+            settings.SMS_LINE_NUMBER,
         )
 
-    def send_bulk(self, to: list[str], message: str):
-        return self.instance.send_bulk_sms(
-            to,
-            message,
-            SMS_LINE_NUMBER,
-        )
+    def send(self, receiver: str, message: str):
+        return self.instance.send_sms(number=receiver, message=message)
 
-    def send_verify_code(self, to: str, code: str):
+    def send_bulk(self, receiver: list[str], message: str):
+        return self.instance.send_bulk_sms(receiver, message)
+
+    def send_verify_code(self, receiver: str, code: str):
         body = [{"name": "Code", "value": code}]
 
         return self.instance.send_verify_code(
-            number=to,
-            template_id=SMS_TEMPLATE,
+            number=receiver,
+            template_id=settings.SMS_TEMPLATE,
             parameters=body,
         )
