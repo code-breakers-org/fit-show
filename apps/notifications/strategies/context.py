@@ -1,4 +1,4 @@
-from apps.notifications.strategies.strategy_abstract import NotificationStrategy
+from .strategy_abstract import NotificationStrategy
 
 
 class NotificationContext:
@@ -13,5 +13,5 @@ class NotificationContext:
     def strategy(self, strategy: NotificationStrategy) -> None:
         self._strategy = strategy
 
-    def send(self, to: str, message: str) -> None:
-        return self._strategy.execute(to=to, message=message)
+    def send(self, receiver: str, message: str) -> None:
+        return self._strategy.execute(receiver=receiver, message=message)
