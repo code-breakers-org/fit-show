@@ -1,9 +1,12 @@
 import django.contrib.auth.password_validation as validators
 from django.utils import timezone
+from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
 from apps.core.enums import UserVerificationStatus
 from apps.core.exceptions import DataInvalidException
+from apps.core.utils import generate_random_string
+from apps.notifications.strategies.strategies import SmsPasswordStrategy
 from apps.user.models import User, UserVerification
 
 
@@ -86,7 +89,22 @@ class VerifyVerificationSerializer(serializers.ModelSerializer):
         fields = ["phone_number", "code"]
 
 
-class ForgotPasswordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["phone_number"]
+class ForgotPasswordSerializer(serializers.Serializer):
+    phone_number = PhoneNumberField(max_length=13)
+
+    def validate(self, attrs: dict):
+        phone_number = attrs.get("phone_number")
+        user_qs = User.objects.filter(phone_number=phone_number)
+        if not user_qs.exists():
+            raise DataInvalidException("User does not exist")
+        return attrs
+
+    def save(self, **kwargs):
+        phone_number = self.validated_data.get("phone_number")
+        user_qs = User.objects.filter(phone_number=phone_number)
+        user: User = user_qs.first()
+        new_password: str = generate_random_string(8)
+        user.set_password(new_password)
+        user.save(update_fields=["password"], force_update=True)
+        user.notification_context.strategy = SmsPasswordStrategy()
+        user.notify_by_phone_number(message=new_password)

@@ -10,10 +10,7 @@ from apps.auth.api.v1.serializers import (
     ForgotPasswordSerializer,
 )
 from apps.core.enums import UserVerificationStatus
-from apps.core.exceptions import DataInvalidException
-from apps.core.responses import CreateResponse, UpdateResponse
-from apps.core.utils import generate_random_string
-from apps.notifications.strategies.strategies import SmsPasswordStrategy
+from apps.core.responses import CreateResponse, UpdateResponse, SuccessResponse
 from apps.user.models import UserVerification, User
 
 
@@ -73,13 +70,6 @@ class ForgetPasswordView(APIView):
 
     def post(self, request: Request):
         serializer: ForgotPasswordSerializer = self.serializer_class(data=request.data)
-        phone_number = serializer.validated_data.get("phone_number")
-        user_qs = self.queryset.filter(phone_number=phone_number)
-        if not user_qs.exists():
-            raise DataInvalidException("User does not exist")
-        user: User = user_qs.first()
-        new_password: str = generate_random_string(8)
-        user.set_password(new_password)
-        user.save()
-        user.notification_context.strategy = SmsPasswordStrategy()
-        user.notify_by_phone_number(message=new_password)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return SuccessResponse(message="New password has been sent")
