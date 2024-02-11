@@ -84,3 +84,9 @@ class VerifyVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserVerification
         fields = ["phone_number", "code"]
+
+
+class ForgotPasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["phone_number"]

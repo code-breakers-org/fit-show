@@ -1,5 +1,5 @@
 from apps.notifications.strategies import (
     SmsStrategy,
-    PhoneNumberVerificationStrategy,
+    SmsOtpStrategy,
     NotificationContext,
 )

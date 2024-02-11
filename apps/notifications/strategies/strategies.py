@@ -1,9 +1,14 @@
+from typing import List
+
 import phonenumbers
 from django.conf import settings
 
 from .strategy_abstract import NotificationStrategy
 from ..decorators import log_sms_info
-from ..tasks import send_otp_sms_notification, send_sms_notification
+from ..tasks import (
+    send_sms_notification,
+    send_template_sms_notification,
+)
 
 
 class SmsStrategy(NotificationStrategy):
@@ -26,6 +31,24 @@ class SmsStrategy(NotificationStrategy):
             return False
 
 
-class PhoneNumberVerificationStrategy(SmsStrategy):
+class SmsOtpStrategy(SmsStrategy):
     def send(self, receiver: str, message: str):
-        send_otp_sms_notification.delay(receiver=receiver, code=message)
+        template_id = self.get_template_id()
+        template_body = self.get_template_body(value=message)
+        send_template_sms_notification.delay(
+            receiver=receiver, body=template_body, template_id=template_id
+        )
+
+    def get_template_id(self) -> int:
+        return settings.SMS_OTP_TEMPLATE
+
+    def get_template_body(self, value: str) -> List[dict]:
+        return [{"name": "Code", "value": value}]
+
+
+class SmsPasswordStrategy(SmsOtpStrategy):
+    def get_template_id(self) -> int:
+        return settings.SMS_PASSWORD_TEMPLATE
+
+    def get_template_body(self, value: str) -> List[dict]:
+        return [{"name": "PASSWORD", "value": value}]

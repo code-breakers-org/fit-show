@@ -5,12 +5,13 @@ from apps.auth.api.v1.views import (
     SignupView,
     SendVerificationCodeView,
     VerifyVerificationCodeView,
+    ForgetPasswordView,
 )
 
 urlpatterns = [
-    path("signup/", SignupView.as_view(), name="signup"),
-    path("signin/", TokenObtainPairView.as_view(), name="signin"),
-    path("refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("signup", SignupView.as_view(), name="signup"),
+    path("signin", TokenObtainPairView.as_view(), name="signin"),
+    path("refresh", TokenRefreshView.as_view(), name="token-refresh"),
     path(
         "otp/send",
         SendVerificationCodeView.as_view(),
@@ -21,4 +22,5 @@ urlpatterns = [
         VerifyVerificationCodeView.as_view(),
         name="verify_otp",
     ),
+    path("forget-password", ForgetPasswordView.as_view(), name="forget-password"),
 ]

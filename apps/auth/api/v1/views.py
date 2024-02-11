@@ -7,10 +7,14 @@ from apps.auth.api.v1.serializers import (
     UserSignUpSerializer,
     SendVerificationSerializer,
     VerifyVerificationSerializer,
+    ForgotPasswordSerializer,
 )
 from apps.core.enums import UserVerificationStatus
+from apps.core.exceptions import DataInvalidException
 from apps.core.responses import CreateResponse, UpdateResponse
-from apps.user.models import UserVerification
+from apps.core.utils import generate_random_string
+from apps.notifications.strategies.strategies import SmsPasswordStrategy
+from apps.user.models import UserVerification, User
 
 
 class SignupView(APIView):
@@ -41,7 +45,7 @@ class SendVerificationCodeView(CreateAPIView):
             user_verification_qs.delete()
 
         user_verification: UserVerification = serializer.save()
-        user_verification.notify_verification_code()
+        user_verification.send_verification_code()
 
 
 class VerifyVerificationCodeView(APIView):
@@ -59,3 +63,23 @@ class VerifyVerificationCodeView(APIView):
             status=UserVerificationStatus.VERIFIED
         )
         return UpdateResponse(message="Verification code validated")
+
+
+class ForgetPasswordView(APIView):
+    serializer_class = ForgotPasswordSerializer
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+    queryset = User.objects.all()
+
+    def post(self, request: Request):
+        serializer: ForgotPasswordSerializer = self.serializer_class(data=request.data)
+        phone_number = serializer.validated_data.get("phone_number")
+        user_qs = self.queryset.filter(phone_number=phone_number)
+        if not user_qs.exists():
+            raise DataInvalidException("User does not exist")
+        user: User = user_qs.first()
+        new_password: str = generate_random_string(8)
+        user.set_password(new_password)
+        user.save()
+        user.notification_context.strategy = SmsPasswordStrategy()
+        user.notify_by_phone_number(message=new_password)
