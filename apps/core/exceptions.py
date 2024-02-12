@@ -1,5 +1,6 @@
 import logging
 import uuid
+from http import HTTPStatus
 
 from django.conf import settings
 from rest_framework import status
@@ -60,8 +61,41 @@ class DataInvalidException(CustomAPIException):
 
 
 class MaximumLimitException(CustomAPIException):
-    ...
+    """
+    This exception is raised when the maximum number of attempts is exceeded. This can occur in situations like:
+        Requesting a password change with a date and time restriction. For example, if you are only allowed to request a
+         password change once per day.
+        Sending a verification code when the expiration date hasn't passed. This means you've already requested a code
+        within the valid timeframe and need to wait before trying again.
+    DON'T USE THIS EXCEPTION FOR RATE LIMITS EXCEPTIONS
+    """
+    def __init__(
+            self,
+            error_message="You have been exceeded the maximum limitation",
+            error_data=None,
+            **kwargs,
+    ):
+        super().__init__(
+            error_message=error_message,
+            error_data=error_data,
+            **kwargs
+        )
 
 
 class ErrorException(CustomAPIException):
     ...
+
+
+class NotFoundException(CustomAPIException):
+    def __init__(
+            self,
+            error_message="Not Found",
+            error_data=None,
+            **kwargs,
+    ):
+        super().__init__(
+            error_message=error_message,
+            error_data=error_data,
+            status_code=HTTPStatus.NOT_FOUND,
+            **kwargs
+        )
