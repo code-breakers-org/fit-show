@@ -41,6 +41,8 @@ class User(AbstractBaseUser, CustomBaseModel, PermissionsMixin):
             "Unselect this instead of deleting accounts."
         ),
     )
+    last_change_password = models.DateTimeField(editable=True, null=True, blank=True)
+
     USERNAME_FIELD = "phone_number"
     objects = UserManager()
 
@@ -71,12 +73,12 @@ class UserVerification(CustomBaseModel):
     phone_number = PhoneNumberField(max_length=13)
     expire_on = models.DateTimeField()
     code = models.IntegerField()
-    notification_context = NotificationContext(SmsOtpStrategy())
     status = models.CharField(
         max_length=10,
         choices=UserVerificationStatus.choices,
         default=UserVerificationStatus.PENDING,
     )
+    notification_context = NotificationContext(SmsOtpStrategy())
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
