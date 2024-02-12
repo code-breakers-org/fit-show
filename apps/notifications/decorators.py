@@ -1,28 +1,23 @@
 import logging
 from functools import wraps
-from typing import List
 
 from django.conf import settings
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
 
-def log_info(message: str, sensitive_keys: List[str] = None):
+def log_debug(message: str):
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):
-            sanitized_dict = {}
-            for key, value in kwargs.items():
-                if sensitive_keys is not None and key not in sensitive_keys:
-                    sanitized_dict[key] = value
-
-            if "message" in sanitized_dict:
-                val = sanitized_dict.pop("message")
-                sanitized_dict["_message"] = val
-
-            logger.info(
-                msg=f"{message}",
-                extra=sanitized_dict,
+            copied_kwargs = kwargs.copy()
+            if "message" in copied_kwargs:
+                val = copied_kwargs.pop("message")
+                copied_kwargs["_message"] = val
+            formatted_message = message.format(**kwargs)
+            logger.debug(
+                msg=formatted_message,
+                extra=copied_kwargs,
             )
             return function(*args, **kwargs)
 
