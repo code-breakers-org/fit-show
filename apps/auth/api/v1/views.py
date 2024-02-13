@@ -1,3 +1,5 @@
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -9,10 +11,27 @@ from apps.auth.api.v1.serializers import (
     VerifyVerificationSerializer,
 )
 from apps.core.enums import UserVerificationStatus
-from apps.core.responses import CreateResponse, UpdateResponse
+from apps.core.responses import (
+    CreateResponse,
+    UpdateResponse,
+    ResponseSerializer,
+)
 from apps.user.models import UserVerification
 
 
+@extend_schema(
+    tags=["auth"],
+    description="An API for signup new users! This API will raise errors when a user has invalid password"
+    " and when user has not been validated his phone number first.",
+    summary="Sign up a new user",
+    responses={
+        status.HTTP_201_CREATED: UserSignUpSerializer,
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Invalid data. Check serializer ERRORS!",
+            response=ResponseSerializer(),
+        ),
+    },
+)
 class SignupView(APIView):
     serializer_class = UserSignUpSerializer
     authentication_classes = ()
