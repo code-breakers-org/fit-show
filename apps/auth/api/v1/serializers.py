@@ -1,9 +1,16 @@
 import django.contrib.auth.password_validation as validators
 from django.utils import timezone
+from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
 from apps.core.enums import UserVerificationStatus
-from apps.core.exceptions import DataInvalidException
+from apps.core.exceptions import (
+    DataInvalidException,
+    NotFoundException,
+    MaximumLimitException,
+)
+from apps.core.utils import generate_random_string
+from apps.notifications.strategies.strategies import SmsPasswordStrategy
 from apps.user.models import User, UserVerification
 
 
@@ -53,7 +60,7 @@ class SendVerificationSerializer(serializers.ModelSerializer):
             expire_on = user_verification.first().expire_on
             remaining_time = expire_on - timezone.now()
             total_seconds = remaining_time.total_seconds()
-            raise DataInvalidException(
+            raise MaximumLimitException(
                 "You can't send verification",
                 {
                     "remaining_total_seconds": total_seconds,
@@ -84,3 +91,32 @@ class VerifyVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserVerification
         fields = ["phone_number", "code"]
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    phone_number = PhoneNumberField(max_length=13)
+
+    def validate(self, attrs: dict):
+        phone_number = attrs.get("phone_number")
+        user_qs = User.objects.filter(phone_number=phone_number)
+        if not user_qs.exists():
+            raise NotFoundException("User does not exist")
+        today = timezone.now().date()
+        user: User = user_qs.first()
+        last_change_password = user.last_change_password
+        if last_change_password and not last_change_password.date() < today:
+            raise MaximumLimitException(
+                "You can only change your password one time in a day"
+            )
+        return attrs
+
+    def save(self, **kwargs):
+        phone_number = self.validated_data.get("phone_number")
+        user_qs = User.objects.filter(phone_number=phone_number)
+        user: User = user_qs.first()
+        new_password: str = generate_random_string(8)
+        user.set_password(new_password)
+        user.last_change_password = timezone.now()
+        user.save(update_fields=["password", "last_change_password"], force_update=True)
+        user.notification_context.strategy = SmsPasswordStrategy()
+        user.notify_by_phone_number(message=new_password)

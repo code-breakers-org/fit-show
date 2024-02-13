@@ -64,7 +64,10 @@ Enum category_type{
   sport
   equipment
 }
-
+ENUM user_verification_status{
+  pending
+  verified
+}
 Table user {
   id uuid [primary key]
   created_at timestamp [not null]
@@ -80,11 +83,20 @@ Table user {
   device_token varchar [not null]
   referral_code varchar [not null]
   referral_percent float [not null,default:0,note: "only admin can change this"]
+  last_change_password timestamp
   indexes {
     phone_number [name: 'phone_number_idx', type:btree]
   }
 }
-
+Table user_verification{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  phone_number varchar(13) [not null]
+  expire_on timestamp [not null]
+  code integer [not null]
+  status user_verification_status [not null]
+}
 Table coach_detail{
   id uuid [primary key]
   created_at timestamp [not null]

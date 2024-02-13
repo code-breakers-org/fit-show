@@ -1,8 +1,10 @@
 import logging
+from typing import List
 
 from django.conf import settings
 from sms_ir.services import SmsIr
 
+from apps.core.types import NameValueDict
 from .sms_provider_abstract import SMSProviderAbstract
 
 
@@ -26,11 +28,11 @@ class SmsProvider(SMSProviderAbstract):
     def send_bulk(self, receiver: list[str], message: str):
         return self.instance.send_bulk_sms(receiver, message)
 
-    def send_verify_code(self, receiver: str, code: str):
-        body = [{"name": "Code", "value": code}]
-
+    def send_verify_code(
+        self, receiver: str, body: List[NameValueDict], template_id: int
+    ):
         return self.instance.send_verify_code(
             number=receiver,
-            template_id=settings.SMS_TEMPLATE,
+            template_id=template_id,
             parameters=body,
         )

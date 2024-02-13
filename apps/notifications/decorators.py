@@ -6,12 +6,21 @@ from django.conf import settings
 logger = logging.getLogger(settings.LOGGER_NAME)
 
 
-def log_sms_info(function):
-    @wraps(function)
-    def wrap(self, *args, **kwargs):
-        to = str(kwargs.get("to"))
-        message = kwargs.get("message")
-        logger.info(msg=f"Sms has been sent to {to} with this message: {message} ")
-        return function(self, *args, **kwargs)
+def log_debug(message: str):
+    def decorator(function):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            copied_kwargs = kwargs.copy()
+            if "message" in copied_kwargs:
+                val = copied_kwargs.pop("message")
+                copied_kwargs["_message"] = val
+            formatted_message = message.format(**kwargs)
+            logger.debug(
+                msg=formatted_message,
+                extra=copied_kwargs,
+            )
+            return function(*args, **kwargs)
 
-    return wrap
+        return wrapper
+
+    return decorator

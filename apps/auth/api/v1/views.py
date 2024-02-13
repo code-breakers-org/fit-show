@@ -7,10 +7,11 @@ from apps.auth.api.v1.serializers import (
     UserSignUpSerializer,
     SendVerificationSerializer,
     VerifyVerificationSerializer,
+    ForgotPasswordSerializer,
 )
 from apps.core.enums import UserVerificationStatus
-from apps.core.responses import CreateResponse, UpdateResponse
-from apps.user.models import UserVerification
+from apps.core.responses import CreateResponse, UpdateResponse, SuccessResponse
+from apps.user.models import UserVerification, User
 
 
 class SignupView(APIView):
@@ -41,7 +42,7 @@ class SendVerificationCodeView(CreateAPIView):
             user_verification_qs.delete()
 
         user_verification: UserVerification = serializer.save()
-        user_verification.notify_verification_code()
+        user_verification.send_verification_code()
 
 
 class VerifyVerificationCodeView(APIView):
@@ -59,3 +60,16 @@ class VerifyVerificationCodeView(APIView):
             status=UserVerificationStatus.VERIFIED
         )
         return UpdateResponse(message="Verification code validated")
+
+
+class ForgetPasswordView(APIView):
+    serializer_class = ForgotPasswordSerializer
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+    queryset = User.objects.all()
+
+    def post(self, request: Request):
+        serializer: ForgotPasswordSerializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return SuccessResponse(message="New password has been sent")

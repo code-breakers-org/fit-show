@@ -14,7 +14,7 @@ from apps.core.utils import add_date_time_to_now, generate_verification_code
 from apps.notifications import (
     NotificationContext,
     SmsStrategy,
-    PhoneNumberVerificationStrategy,
+    SmsOtpStrategy,
 )
 from apps.user.manager import UserManager
 
@@ -41,15 +41,20 @@ class User(AbstractBaseUser, CustomBaseModel, PermissionsMixin):
             "Unselect this instead of deleting accounts."
         ),
     )
+    last_change_password = models.DateTimeField(editable=True, null=True, blank=True)
+
     USERNAME_FIELD = "phone_number"
     objects = UserManager()
+
+    # FIXME: dependency injection to prevent coupling and consider defining it in a common base class or mixin to
+    #  avoid duplication.
     notification_context = NotificationContext(SmsStrategy())
 
     def __str__(self):
         return f"{self.phone_number}"
 
-    def notify_phone_number(self, message: str):
-        self.notification_context.send(to=self.phone_number, message=message)
+    def notify_by_phone_number(self, message: str):
+        self.notification_context.send(receiver=self.phone_number, message=message)
 
     class Meta:
         verbose_name = _("user")
@@ -68,12 +73,12 @@ class UserVerification(CustomBaseModel):
     phone_number = PhoneNumberField(max_length=13)
     expire_on = models.DateTimeField()
     code = models.IntegerField()
-    notification_context = NotificationContext(PhoneNumberVerificationStrategy())
     status = models.CharField(
         max_length=10,
         choices=UserVerificationStatus.choices,
         default=UserVerificationStatus.PENDING,
     )
+    notification_context = NotificationContext(SmsOtpStrategy())
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
@@ -93,6 +98,7 @@ class UserVerification(CustomBaseModel):
     def send_verification_code(self):
         self.notify_by_phone_number(str(self.code))
 
+    # FIXME Explore using a more descriptive string, potentially including other relevant fields.
     def __str__(self):
         return f"{self.phone_number}"
 

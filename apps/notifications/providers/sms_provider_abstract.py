@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from typing import Any
 
 
 class SMSProviderAbstract(ABC):
@@ -7,5 +8,5 @@ class SMSProviderAbstract(ABC):
         pass
 
     @abstractmethod
-    def send_verify_code(self, receiver: str, code: str):
+    def send_verify_code(self, receiver: str, body: Any, template_id: str):
         pass

@@ -16,7 +16,8 @@ env:
   POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   SMS_API_KEY: ${{ secrets.SMS_API_KEY }}
-  SMS_TEMPLATE: ${{ secrets.SMS_TEMPLATE }}
+  SMS_OTP_TEMPLATE: ${{ secrets.SMS_OTP_TEMPLATE }}
+  SMS_PASSWORD_TEMPLATE: ${{ secrets.SMS_PASSWORD_TEMPLATE }}
   SMS_LINE_NUMBER: ${{ secrets.SMS_LINE_NUMBER }}
   REDIS_HOST: ${{ secrets.REDIS_HOST }}
   REDIS_PORT: ${{ secrets.REDIS_PORT }}
