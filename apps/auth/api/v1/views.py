@@ -17,6 +17,12 @@ from apps.core.responses import (
     ResponseSerializer,
 )
 from apps.user.models import UserVerification, User
+from apps.core.responses import (
+    CreateResponse,
+    UpdateResponse,
+    ResponseSerializer,
+)
+from apps.user.models import UserVerification
 
 
 @extend_schema(
