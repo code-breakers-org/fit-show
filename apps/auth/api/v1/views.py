@@ -12,16 +12,13 @@ from apps.auth.api.v1.serializers import (
     ForgotPasswordSerializer,
 )
 from apps.core.enums import UserVerificationStatus
-from apps.core.responses import CreateResponse, UpdateResponse, SuccessResponse
-from apps.core.responses import (
-    ResponseSerializer,
-)
-from apps.user.models import UserVerification, User
 from apps.core.responses import (
     CreateResponse,
     UpdateResponse,
     ResponseSerializer,
 )
+from apps.core.responses import SuccessResponse
+from apps.user.models import User
 from apps.user.models import UserVerification
 
 
