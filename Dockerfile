@@ -1,9 +1,28 @@
+# Set a default Python version
+ARG PYTHON_VERSION=3.11
+#
+#
+#  Install General system packages stage
+#
+#
+FROM python:${PYTHON_VERSION}-slim AS system-packages-stage
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get install -yqq --no-install-recommends \
+    make python3-psycopg2 nano curl supervisor wait-for-it && \
+    apt-get autoremove && \
+    apt-get clean
 #
 #
 #  Install stage
 #
 #
-FROM python:3.11-slim AS compile-image
+FROM system-packages-stage AS compile-image
 LABEL stage=compiler
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -17,7 +36,6 @@ ENV PIP_QUIET=1
 
 RUN \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get update; \
     apt-get install -yqq --no-install-recommends \
     build-essential gcc software-properties-common python3-psycopg2 libpq-dev python3-dev
 
@@ -42,7 +60,7 @@ RUN find /opt/venv -type d -name "test" -name "tests" -delete 2>/dev/null
 #  Build for development
 #
 #
-FROM python:3.11-slim AS build-dev
+FROM system-packages-stage AS build-dev
 
 WORKDIR /app/
 
@@ -52,12 +70,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
-RUN \
-    --mount=type=cache,target=/var/cache/apt \
-    apt-get update && \
-    apt-get install -yqq --no-install-recommends \
-    supervisor wget nano curl python3-psycopg2 make wait-for-it
 
 # Supervisor config
 RUN mkdir -p /var/log/supervisor
@@ -90,7 +102,7 @@ ENTRYPOINT ["sh", "/app/scripts/entrypoint.sh"]
 #  Build for production
 #
 #
-FROM python:3.11-slim AS build-prod
+FROM system-packages-stage AS build-prod
 
 WORKDIR /app/
 
@@ -100,12 +112,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
-RUN \
-    --mount=type=cache,target=/var/cache/apt \
-    apt-get update && \
-    apt-get install -yqq --no-install-recommends \
-    supervisor wget nano curl python3-psycopg2 make
 
 # Supervisor config
 RUN mkdir -p /var/log/supervisor
