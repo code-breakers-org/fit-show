@@ -1,7 +1,19 @@
 from collections import OrderedDict
 
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework.response import Response
+
+
+class ResponseSerializer(serializers.Serializer):
+    """To be used on Swagger schema extending purposes"""
+
+    status = serializers.IntegerField(min_value=100, max_value=599, read_only=True)
+    message = serializers.CharField(read_only=True)
+    result = serializers.SerializerMethodField(read_only=True, source="get_result")
+
+    def get_result(self, obj) -> list | dict | None:
+        return None
 
 
 class CustomResponse(Response):

@@ -1,3 +1,5 @@
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -10,10 +12,29 @@ from apps.auth.api.v1.serializers import (
     ForgotPasswordSerializer,
 )
 from apps.core.enums import UserVerificationStatus
-from apps.core.responses import CreateResponse, UpdateResponse, SuccessResponse
-from apps.user.models import UserVerification, User
+from apps.core.responses import (
+    CreateResponse,
+    UpdateResponse,
+    ResponseSerializer,
+)
+from apps.core.responses import SuccessResponse
+from apps.user.models import User
+from apps.user.models import UserVerification
 
 
+@extend_schema(
+    tags=["auth"],
+    description="An API for signup new users! This API will raise errors when a user has invalid password"
+    " and when user has not been validated his phone number first.",
+    summary="Sign up a new user",
+    responses={
+        status.HTTP_201_CREATED: UserSignUpSerializer,
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Invalid data. Check serializer ERRORS!",
+            response=ResponseSerializer(),
+        ),
+    },
+)
 class SignupView(APIView):
     serializer_class = UserSignUpSerializer
     authentication_classes = ()
@@ -28,6 +49,19 @@ class SignupView(APIView):
         return CreateResponse(message="User created", data=serializer.data)
 
 
+@extend_schema(
+    tags=["auth"],
+    description="An API for receiving verification code. You will get an error if you reach the limitation of "
+    "requesting verification code.",
+    summary="Get verification code",
+    responses={
+        status.HTTP_201_CREATED: SendVerificationSerializer,
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Invalid data. Check serializer ERRORS!",
+            response=ResponseSerializer(),
+        ),
+    },
+)
 class SendVerificationCodeView(CreateAPIView):
     serializer_class = SendVerificationSerializer
     authentication_classes = ()
@@ -45,6 +79,22 @@ class SendVerificationCodeView(CreateAPIView):
         user_verification.send_verification_code()
 
 
+@extend_schema(
+    tags=["auth"],
+    description="An API for receiving verification code. you will get an validation error for your request if the "
+    "input code is not valid.",
+    summary="Verify phone number",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Verification code validated",
+            response=ResponseSerializer(),
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Invalid data. Check serializer ERRORS!",
+            response=ResponseSerializer(),
+        ),
+    },
+)
 class VerifyVerificationCodeView(APIView):
     serializer_class = VerifyVerificationSerializer
     authentication_classes = ()

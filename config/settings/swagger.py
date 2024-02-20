@@ -11,4 +11,5 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": API_PREFIX_REGEX,
+    "DEFAULT_SCHEMA_CLASS": "drf_standardized_errors.openapi.AutoSchema",
 }
