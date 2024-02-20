@@ -46,6 +46,19 @@ class SignupView(APIView):
         return CreateResponse(message="User created", data=serializer.data)
 
 
+@extend_schema(
+    tags=["auth"],
+    description="An API for receiving verification code. You will get an error if you reach the limitation of "
+    "requesting verification code.",
+    summary="Get verification code",
+    responses={
+        status.HTTP_201_CREATED: SendVerificationSerializer,
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Invalid data. Check serializer ERRORS!",
+            response=ResponseSerializer(),
+        ),
+    },
+)
 class SendVerificationCodeView(CreateAPIView):
     serializer_class = SendVerificationSerializer
     authentication_classes = ()
@@ -63,6 +76,22 @@ class SendVerificationCodeView(CreateAPIView):
         user_verification.notify_verification_code()
 
 
+@extend_schema(
+    tags=["auth"],
+    description="An API for receiving verification code. you will get an validation error for your request if the "
+    "input code is not valid.",
+    summary="Verify phone number",
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            description="Verification code validated",
+            response=ResponseSerializer(),
+        ),
+        status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+            description="Invalid data. Check serializer ERRORS!",
+            response=ResponseSerializer(),
+        ),
+    },
+)
 class VerifyVerificationCodeView(APIView):
     serializer_class = VerifyVerificationSerializer
     authentication_classes = ()
