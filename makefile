@@ -55,3 +55,12 @@ install-dbdocs:
 initial-dbdocs:
 	dbdocs build $(DBDOCS_FILENAME)
 
+make-migrations:
+	python manage.py makemigrations
+
+migrate:
+	python manage.py migrate --noinput
+
+collect-static:
+	python manage.py collectstatic --noinput
+
