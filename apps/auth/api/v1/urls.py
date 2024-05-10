@@ -6,6 +6,7 @@ from apps.auth.api.v1.views import (
     SendVerificationCodeView,
     VerifyVerificationCodeView,
     ForgetPasswordView,
+    ResetPassword,
 )
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
         name="verify_otp",
     ),
     path("forget-password", ForgetPasswordView.as_view(), name="forget-password"),
+    path("reset-password", ResetPassword.as_view(), name="reset-password"),
 ]

@@ -120,3 +120,16 @@ class ForgotPasswordSerializer(serializers.Serializer):
         user.save(update_fields=["password", "last_change_password"], force_update=True)
         user.notification_context.strategy = SmsPasswordStrategy()
         user.notify_by_phone_number(message=new_password)
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(max_length=128)
+    new_password = serializers.CharField(max_length=128)
+
+    def validate(self, attrs: dict):
+        old_password = attrs.get("old_password")
+        user: User = self.context.get("user")
+        old_password_is_valid = user.check_password(old_password)
+        if not old_password_is_valid:
+            raise DataInvalidException("Please enter your correct old password")
+        return attrs

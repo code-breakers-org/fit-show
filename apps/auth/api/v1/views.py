@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -10,6 +10,7 @@ from apps.auth.api.v1.serializers import (
     SendVerificationSerializer,
     VerifyVerificationSerializer,
     ForgotPasswordSerializer,
+    ResetPasswordSerializer,
 )
 from apps.core.enums import UserVerificationStatus
 from apps.core.responses import (
@@ -123,3 +124,20 @@ class ForgetPasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return SuccessResponse(message="New password has been sent")
+
+
+class ResetPassword(APIView):
+    serializer_class = ResetPasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request: Request):
+        current_user: User = request.user
+        serializer = self.serializer_class(
+            context={"user": current_user}, data=request.data
+        )
+        serializer.is_valid(raise_exception=True)
+        new_password = serializer.validated_data.get("new_password")
+        current_user.set_password(new_password)
+        current_user.save()
+        # TODO should invalidate token
+        return SuccessResponse(message="Password has been changed")
