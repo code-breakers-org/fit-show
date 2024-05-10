@@ -93,7 +93,7 @@ class UserVerification(CustomBaseModel):
         )
 
     def notify_by_phone_number(self, message: str):
-        self.notification_context.send(to=self.phone_number, message=message)
+        self.notification_context.send(receiver=self.phone_number, message=message)
 
     def send_verification_code(self):
         self.notify_by_phone_number(str(self.code))
