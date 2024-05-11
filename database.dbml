@@ -120,21 +120,21 @@ Table media{
 }
 
 Table profile {
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  gender gender [not null]
-  user_id uuid [ref: - user.id ,not null]
-  bank_account_number varchar [unique]
-  email varchar
-  address varchar
+  id uuid [primary key,note:"✅"]
+  created_at timestamp [not null,note:"✅"]
+  updated_at timestamp [not null,note:"✅"]
+  gender gender [not null,note:"✅"]
+  user_id uuid [ref: - user.id ,not null,note:"✅"]
+  bank_account_number varchar [unique,not null,note:"✅"]
+  iban varchar [unique,not null,note:"✅"]
+  email varchar [unique,note:"✅"]
+  address varchar [note:"✅"]
 }
 
 Table body_profile{
   id uuid [primary key]
   created_at timestamp [not null]
   updated_at timestamp [not null]
-  deleted_at timestamp
   athlete_id uuid [ref: - user.id ,not null]
   height float [not null]
   weight float [not null]

@@ -14,6 +14,7 @@ from apps.core.enums import (
     UserVerificationStatus,
     UserMediaType,
     UserBodySide,
+    Gender,
 )
 from apps.core.mixins.models import CustomBaseModel
 from apps.core.utils import add_date_time_to_now, generate_verification_code
@@ -123,10 +124,12 @@ class UserVerification(CustomBaseModel):
 
 
 class UserMedia(CustomBaseModel):
-    type = models.CharField(max_length=16, choices=UserMediaType.choices)
+    type = models.CharField(
+        max_length=16, choices=UserMediaType.choices, null=False, blank=False
+    )
     body_side = models.CharField(max_length=16, choices=UserBodySide.choices)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
+    media = models.ForeignKey(Media, on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self):
         return f"{self.type}-{self.user},{self.media}"
@@ -137,7 +140,7 @@ class UserMedia(CustomBaseModel):
         get_latest_by = "created_at"
         ordering = ["type"]
         indexes = [
-            models.Index(fields=["user"], name="user_idx"),
+            models.Index(fields=["user"], name="user_media_user_idx"),
         ]
 
         constraints = [
@@ -149,4 +152,34 @@ class UserMedia(CustomBaseModel):
         ]
 
         db_table = "user_media"
+        app_label = "user"
+
+
+class Profile(CustomBaseModel):
+    gender = models.CharField(
+        max_length=16, choices=Gender.choices, null=False, blank=False
+    )
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, null=False, blank=False, unique=True
+    )
+    bank_account_number = models.CharField(
+        unique=True, null=False, blank=False, max_length=255
+    )
+    iban = models.CharField(unique=True, null=False, blank=False, max_length=255)
+    email = models.EmailField(null=True, blank=True)
+    address = models.CharField(null=True, blank=True, max_length=255)
+
+    def __str__(self):
+        return f"{self.user}-{self.bank_account_number}"
+
+    class Meta:
+        verbose_name = _("profile")
+        verbose_name_plural = _("profile")
+        get_latest_by = "created_at"
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user"], name="profile_user_idx"),
+        ]
+
+        db_table = "profile"
         app_label = "user"

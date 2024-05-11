@@ -22,3 +22,7 @@ class UserBodySide(models.TextChoices):
     BACK='back',_('back')
     LEFT='left',_('left')
     RIGHT='right',_('right')
+
+class Gender(models.TextChoices):
+    MALE='male',_('maile')
+    FEMALE='femail',_('femail')

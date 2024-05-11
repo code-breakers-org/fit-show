@@ -6,6 +6,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
 )
 
+from apps.core.views import HealthView
+
 admin_urlpatterns = [
     path("admin/", admin.site.urls),
 ]
@@ -25,7 +27,9 @@ api_docs_urlpatterns = [
 ]
 
 v1_urlpatterns = [
+    path("health/", HealthView.as_view()),
     path("api/v1/auth/", include("apps.auth.api.v1.urls")),
+    path("api/v1/user/", include("apps.user.api.v1.urls")),
 ]
 
 urlpatterns = [] + api_docs_urlpatterns + v1_urlpatterns + admin_urlpatterns
