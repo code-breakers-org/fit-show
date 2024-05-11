@@ -5,12 +5,19 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+from django.db.models import UniqueConstraint, Q
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.core.enums import UserType, UserVerificationStatus
+from apps.core.enums import (
+    UserType,
+    UserVerificationStatus,
+    UserMediaType,
+    UserBodySide,
+)
 from apps.core.mixins.models import CustomBaseModel
 from apps.core.utils import add_date_time_to_now, generate_verification_code
+from apps.media.models import Media
 from apps.notifications import (
     NotificationContext,
     SmsStrategy,
@@ -112,4 +119,34 @@ class UserVerification(CustomBaseModel):
         ]
 
         db_table = "user_verification"
+        app_label = "user"
+
+
+class UserMedia(CustomBaseModel):
+    type = models.CharField(max_length=16, choices=UserMediaType.choices)
+    body_side = models.CharField(max_length=16, choices=UserBodySide.choices)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.type}-{self.user},{self.media}"
+
+    class Meta:
+        verbose_name = _("user_media")
+        verbose_name_plural = _("user_medias")
+        get_latest_by = "created_at"
+        ordering = ["type"]
+        indexes = [
+            models.Index(fields=["user"], name="user_idx"),
+        ]
+
+        constraints = [
+            UniqueConstraint(
+                fields=["user", "body_side"],
+                condition=Q(body_side__isnull=False),
+                name="unique_user_body_side_when_body_side_not_null",
+            ),
+        ]
+
+        db_table = "user_media"
         app_label = "user"

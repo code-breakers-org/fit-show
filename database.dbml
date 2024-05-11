@@ -5,12 +5,10 @@ Project FitShow {
     **This is FitShow database documentation**
   '''
 }
-Enum media_type {
+
+Enum user_media_type {
   avatar
-  equipment
-  body_part
   user_body
-  exercise
   licence
 }
 Enum unit{
@@ -28,7 +26,7 @@ Enum user_type{
   admin
 }
 
-Enum body_angle{
+Enum body_side{
   front
   back
   left
@@ -69,63 +67,70 @@ ENUM user_verification_status{
   verified
 }
 Table user {
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  last_login timestamp
-  is_superuser bool [not null]
-  is_staff bool [not null]
-  is_active bool [not null]
-  phone_number varchar(13) [not null, unique]
-  password varchar(128) [not null]
-  name varchar(250) [not null]
-  type user_type [not null]
-  device_token varchar [not null]
-  referral_code varchar [not null]
-  referral_percent float [not null,default:0,note: "only admin can change this"]
-  last_change_password timestamp
+  id uuid [primary key,note:"✅"]
+  created_at timestamp [not null,note:"✅"]
+  updated_at timestamp [not null,note:"✅"]
+  last_login timestamp [note:"✅"]
+  is_superuser bool [not null,note:"✅"]
+  is_staff bool [not null,note:"✅"]
+  is_active bool [not null,note:"✅"]
+  phone_number varchar(13) [not null, unique, note:"✅"]
+  password varchar(128) [not null,note:"✅"]
+  name varchar(250) [not null,note:"✅"]
+  type user_type [not null,note:"✅"]
+  device_token varchar [not null,note:"✅"]
+  referral_code varchar [not null,note:"✅"]
+  referral_percent float [not null,default:0,note: "only admin can change this ✅"]
+  last_change_password timestamp [note:"✅"]
   indexes {
     phone_number [name: 'phone_number_idx', type:btree]
   }
 }
 Table user_verification{
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  phone_number varchar(13) [not null]
-  expire_on timestamp [not null]
-  code integer [not null]
-  status user_verification_status [not null]
-}
-Table coach_detail{
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  coach_id uuid [ref: < user.id,not null]
-  gym_address varchar
-  coach_licence uuid [ref: < media.id]
+  id uuid [primary key,note:"✅"]
+  created_at timestamp [not null,note:"✅"]
+  updated_at timestamp [not null,note:"✅"]
+  phone_number varchar(13) [not null,note:"✅"]
+  expire_on timestamp [not null,note:"✅"]
+  code integer [not null,note:"✅"]
+  status user_verification_status [not null,note:"✅"]
 }
 
-Table referral{
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  user_id uuid [ref: - user.id ,not null,unique]
-  referral_code varchar [not null]
+
+Table user_media {
+  id uuid [primary key,note:"✅"]
+  created_at timestamp [not null,note:"✅"]
+  updated_at timestamp [not null,note:"✅"]
+  type user_media_type [not null,note:"✅"]
+  body_side body_side [note:"✅"]
+  user_id uuid [ref: < user.id ,not null,note:"✅"]
+  media_id uuid [ref: < media.id,not null,note:"✅"]
+  indexes {
+    (user_id,body_side) [unique, note:"WHERE body_side IS NOT NULL"]
+  }
 }
 
-Table user_detail {
+Table media{
+  id uuid [primary key,note:"✅"]
+  created_at timestamp [not null,note:"✅"]
+  updated_at timestamp [not null,note:"✅"]
+  file varchar [not null,note:"✅"]
+  alt varchar [note:"✅"]
+  mime_type varchar [not null,note:"✅"]
+}
+
+Table profile {
   id uuid [primary key]
   created_at timestamp [not null]
   updated_at timestamp [not null]
   gender gender [not null]
   user_id uuid [ref: - user.id ,not null]
   bank_account_number varchar [unique]
-  avatar_id uuid [ref: < media.id]
   email varchar
+  address varchar
 }
 
-Table athlete_profile{
+Table body_profile{
   id uuid [primary key]
   created_at timestamp [not null]
   updated_at timestamp [not null]
@@ -134,37 +139,17 @@ Table athlete_profile{
   height float [not null]
   weight float [not null]
   unit unit [not null ,default:'metric']
-  rest_time int [not null, default:60,note:'seconds']
+  rest_time int [not null, default:60,note:'seconds ❌']
 }
 
-Table user_body_media{
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  user_id uuid [ref: < user.id ,not null]
-  body_angle body_angle
-  media_id uuid [ref: < media.id,not null]
 
-  indexes {
-    (user_id,body_angle) [unique]
-  }
-}
 
-Table media {
-  id uuid [primary key]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
-  file varchar [not null]
-  type media_type [not null]
-  alt varchar
-  mime_type varchar [not null]
-}
 
 Table equipment {
   id uuid [primary key]
   created_at timestamp [not null]
   updated_at timestamp [not null]
-  media_id uuid [ref: < media.id, not null]
+  media_id uuid [ref: - media.id, not null]
   name varchar [not null]
   slug varchar [not null , unique]
   category_id uuid [not null,ref: < category.id]
@@ -175,7 +160,7 @@ Table body_part {
   id uuid [primary key]
   created_at timestamp [not null]
   updated_at timestamp [not null]
-  media_id uuid [ref: < media.id, not null]
+  media_id uuid [ref: > media.id, not null]
   name body_part [not null,unique]
   description text
 }
@@ -190,6 +175,14 @@ Table category {
   type category_type [not null]
 }
 
+Table exercise_media{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  exercise_id uuid [ref: < exercise.id,not null]
+  media_id uuid [ref: < media.id,not null]
+}
+
 Table exercise{
   id uuid [primary key]
   created_at timestamp [not null]
@@ -199,8 +192,6 @@ Table exercise{
   description text
   equipment_id uuid [ref: < equipment.id, not null]
   body_part_id uuid [ref:< body_part.id,not null]
-  media_id uuid [ref: < media.id,not null]
-  calorie_burn int [not null]
   duration int [not null]
   category_id uuid [not null,ref: < category.id]
 }
@@ -226,6 +217,7 @@ Table workout_plan_exercise{
   day_plan int [not null,note:'1-6'] // 1
   sets int [not null]
   repeats int [not null]
+  calorie_burn int
   indexes {
     (exercise_id,workout_plan_id,day_plan,sets,repeats) [unique]
   }
@@ -281,3 +273,10 @@ Table admin_setting{
   value varchar [not null]
 }
 
+Table referral{
+  id uuid [primary key]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  user_id uuid [ref: - user.id ,not null,unique]
+  referral_code varchar [not null]
+}

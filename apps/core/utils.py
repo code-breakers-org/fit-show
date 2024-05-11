@@ -1,5 +1,7 @@
+import os
 import random
 import string
+import uuid
 from datetime import timedelta
 
 from django.utils import timezone
@@ -42,3 +44,8 @@ def add_date_time_to_now(
         hours=hours,
         microseconds=microseconds,
     )
+
+def get_file_name(instance, filename):
+    ext = os.path.splitext(filename)[1]
+    new_filename = f'{instance.type}/{uuid.uuid4()}.{ext}'
+    return os.path.join('uploads/', new_filename)
