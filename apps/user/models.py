@@ -127,7 +127,9 @@ class UserMedia(CustomBaseModel):
     type = models.CharField(
         max_length=16, choices=UserMediaType.choices, null=False, blank=False
     )
-    body_side = models.CharField(max_length=16, choices=UserBodySide.choices)
+    body_side = models.CharField(
+        max_length=16, choices=UserBodySide.choices, null=True, blank=True
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
     media = models.ForeignKey(Media, on_delete=models.CASCADE, null=False, blank=False)
 
@@ -146,7 +148,7 @@ class UserMedia(CustomBaseModel):
         constraints = [
             UniqueConstraint(
                 fields=["user", "body_side"],
-                condition=Q(body_side__isnull=False),
+                condition=Q(body_side__isnull=False) & ~Q(body_side__exact=""),
                 name="unique_user_body_side_when_body_side_not_null",
             ),
         ]

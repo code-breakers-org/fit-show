@@ -3,6 +3,7 @@ import random
 import string
 import uuid
 from datetime import timedelta
+from datetime import date
 
 from django.utils import timezone
 
@@ -47,5 +48,17 @@ def add_date_time_to_now(
 
 def get_file_name(instance, filename):
     ext = os.path.splitext(filename)[1]
-    new_filename = f'{instance.type}/{uuid.uuid4()}.{ext}'
+    year,month,day=get_current_date()
+    new_filename = f'{year}/{month}/{day}/{uuid.uuid4()}{ext}'
     return os.path.join('uploads/', new_filename)
+
+
+def get_current_date():
+  """Gets the current date as year, month, day.
+
+  Returns:
+      A tuple of (year, month, day) representing the current date.
+  """
+
+  today = date.today()
+  return today.year, today.month, today.day

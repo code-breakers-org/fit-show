@@ -13,6 +13,7 @@ ENV PYTHONUNBUFFERED 1
 RUN \
     --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
+    apt-get install -yqq libmagic1 && \
     apt-get install -yqq --no-install-recommends \
     make python3-psycopg2 nano curl supervisor wait-for-it && \
     apt-get autoremove && \

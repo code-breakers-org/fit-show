@@ -3,11 +3,12 @@ import uuid
 from http import HTTPStatus
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.exceptions import APIException
 from rest_framework.views import exception_handler
 
-from apps.core.responses import ErrorResponse
+from apps.core.responses import ErrorResponse, Response
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
@@ -25,6 +26,9 @@ def custom_exception_handler(exc: Exception, context: dict):
         return ErrorResponse(
             message=exc.error_message, data=exc.error_data, status_code=exc.status_code
         )
+    if isinstance(exc,ValidationError):
+        return Response(data=exc.message_dict,status=HTTPStatus.BAD_REQUEST)
+
     exc_id: str = str(uuid.uuid4())
     response = exception_handler(exc, context)
     if response is None:

@@ -1,18 +1,43 @@
 from rest_framework import generics
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 
-from apps.user.api.v1.serializers import ProfileCreateSerializer
+from apps.core.responses import RetrieveResponse
+from apps.user.api.v1.serializers import (
+    ProfileSerializer,
+    UserSerializer,
+    AvatarSerializer,
+)
 from apps.user.models import Profile
 
 
-class ProfileCreate(generics.CreateAPIView):
-    serializer_class = ProfileCreateSerializer
+class ProfileCreateView(generics.CreateAPIView):
+    serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     permission_classes = [IsAuthenticated]
 
 
-class ProfileDetail(generics.RetrieveUpdateAPIView):
+class ProfileDetailView(generics.RetrieveUpdateAPIView):
     lookup_field = "user_id"
-    serializer_class = ProfileCreateSerializer
+    serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     permission_classes = [IsAuthenticated]
+
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        serializer = self.serializer_class(request.user)
+        return RetrieveResponse(data=serializer.data)
+
+
+class UserMediaUploadView(generics.CreateAPIView):
+    serializer_class = AvatarSerializer
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
+
+class AvatarView(UserMediaUploadView):
+    pass
