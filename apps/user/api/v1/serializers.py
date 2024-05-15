@@ -93,7 +93,9 @@ class UserMediaSerializer(serializers.ModelSerializer):
         alt = validated_data.get("alt")
         media = Media.objects.create(file=media_data, alt=alt)
         validated_data.pop("file")
-        validated_data.pop("alt")
+        if validated_data.get("alt"):
+            validated_data.pop("alt")
+
         return UserMedia.objects.create(user=user, media=media, **validated_data)
 
 

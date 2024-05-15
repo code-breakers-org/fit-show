@@ -3,6 +3,8 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
+from apps.core.exceptions import NotFoundException
+from apps.core.mixins.views import UpsertAndRetrieveViewSet
 from apps.core.responses import RetrieveResponse
 from apps.user.api.v1.serializers import (
     ProfileSerializer,
@@ -12,17 +14,18 @@ from apps.user.api.v1.serializers import (
 from apps.user.models import Profile
 
 
-class ProfileCreateView(generics.CreateAPIView):
+class ProfileViewSet(UpsertAndRetrieveViewSet):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     permission_classes = [IsAuthenticated]
 
-
-class ProfileDetailView(generics.RetrieveUpdateAPIView):
-    lookup_field = "user_id"
-    serializer_class = ProfileSerializer
-    queryset = Profile.objects.all()
-    permission_classes = [IsAuthenticated]
+    def get_object(self):
+        try:
+            user = self.request.user
+            qs_object = self.queryset.get(user_id=user.id)
+            return qs_object
+        except:
+            raise NotFoundException()
 
 
 class CurrentUserView(APIView):
@@ -38,6 +41,7 @@ class UserMediaUploadView(generics.CreateAPIView):
     serializer_class = AvatarSerializer
     parser_classes = [MultiPartParser]
     permission_classes = [IsAuthenticated]
+
 
 class AvatarView(UserMediaUploadView):
     pass
